@@ -19,7 +19,7 @@ namespace EspaceX_api.ViewModels
     {
         private readonly ISpaceXApiService _apiService;
 
-        // ─── Propiedades observables ───────────────────────────────────────────
+        //TODO: Propiedades para zoom/pan, sitio seleccionado, lanzamientos del sitio, etc
 
         [ObservableProperty]
         private ObservableCollection<MapPointModel> launchSites = new();
@@ -45,18 +45,18 @@ namespace EspaceX_api.ViewModels
         [ObservableProperty]
         private double panY = 0;
 
-        // ─── Constantes de zoom ────────────────────────────────────────────────
+        //TODO: constantes para límites de zoom, velocidad de pan, etc
         private const double ZoomStep = 0.2;
         private const double ZoomMin = 0.5;
         private const double ZoomMax = 5.0;
 
-        // ─── Constructor ───────────────────────────────────────────────────────
+        //TODO: constructor con inyección de ISpaceXApiService (para testabilidad y separación de responsabilidades)
         public MapViewModel(ISpaceXApiService apiService)
         {
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
-        // ─── Reacción a cambio de sitio seleccionado ───────────────────────────
+        //TODO: método para cargar sitios de lanzamiento (usando GetLaunchesAsync + GetLaunchpadAsync)
         partial void OnSelectedSiteChanged(MapPointModel? value)
         {
             SelectedSiteLaunches.Clear();
@@ -64,7 +64,7 @@ namespace EspaceX_api.ViewModels
             _ = LoadLaunchesForSiteAsync(value.Id);
         }
 
-        // ─── Comandos ──────────────────────────────────────────────────────────
+        //TODO: métodos para zoom, pan, reset view, etc (modificando ZoomLevel, PanX, PanY)
 
         [RelayCommand]
         private async Task LoadLaunchSites()
@@ -75,17 +75,17 @@ namespace EspaceX_api.ViewModels
                 ErrorMessage = string.Empty;
                 LaunchSites.Clear();
 
-                // 1. Obtenemos todos los lanzamientos (tiene caché de 1 hora)
+                //Obtenemos todos los lanzamientos (tiene caché de 1 hora)
                 var launches = await _apiService.GetLaunchesAsync();
 
-                // 2. Agrupamos los IDs de plataformas únicas desde los lanzamientos
+                //Agrupamos los IDs de plataformas únicas desde los lanzamientos
                 var launchpadIds = launches
                     .Where(l => !string.IsNullOrEmpty(l.LaunchpadId))
                     .Select(l => l.LaunchpadId)
                     .Distinct()
                     .ToList();
 
-                // 3. Por cada plataforma única pedimos su detalle con GetLaunchpadAsync
+                //Por cada plataforma única pedimos su detalle con GetLaunchpadAsync
                 foreach (var padId in launchpadIds)
                 {
                     try
@@ -139,7 +139,7 @@ namespace EspaceX_api.ViewModels
             PanY = 0;
         }
 
-        // ─── Método público: proyección Mercator ───────────────────────────────
+        //TODO: método para manejar pan (recibiendo deltaX, deltaY desde eventos de mouse/touch)
         /// <summary>
         /// Convierte coordenadas geográficas a coordenadas de pantalla
         /// aplicando proyección Mercator + zoom + pan.
@@ -159,7 +159,7 @@ namespace EspaceX_api.ViewModels
             return (screenX, screenY);
         }
 
-        // ─── Carga lanzamientos del sitio seleccionado ─────────────────────────
+        //TODO: método para cargar lanzamientos de un sitio seleccionado (filtrando por LaunchpadId)
         private async Task LoadLaunchesForSiteAsync(string siteId)
         {
             try

@@ -2,15 +2,21 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using EspaceX_api.ViewModels;
+using System;
+
 namespace EspaceX_api.ViewModels
 {
-    /// <summary>
-    /// ViewModel principal que coordina navegación entre vistas.
-    /// Responsabilidad única: gestionar la vista activa.
-    /// (Single Responsibility Principle)
-    /// </summary>
     public partial class MainViewModel : ObservableObject
     {
+        /// <summary>
+        /// ViewModel principal que coordina navegación entre vistas.
+        /// Responsabilidad única: gestionar la vista activa.
+        /// (Single Responsibility Principle)
+        /// </summary>
+        
         [ObservableProperty]
         private ObservableObject currentViewModel;
 
@@ -34,10 +40,7 @@ namespace EspaceX_api.ViewModels
         }
 
         [RelayCommand]
-        public void NavigateToHome()
-        {
-            CurrentViewModel = _homeViewModel;
-        }
+        public void NavigateToHome() => CurrentViewModel = _homeViewModel;
 
         [RelayCommand]
         public void NavigateToLaunches()
@@ -61,9 +64,6 @@ namespace EspaceX_api.ViewModels
         }
 
         [RelayCommand]
-        public void Exit()
-        {
-            System.Windows.Application.Current.Shutdown();
-        }
+        public void Exit() => System.Windows.Application.Current.Shutdown();
     }
 }

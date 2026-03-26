@@ -10,45 +10,31 @@ using System.Threading.Tasks;
 namespace EspaceX_api.ViewModels
 {
     /// <summary>
-    /// Modelo para representar un punto en el mapa (sitio de lanzamiento).
-    /// </summary>
-    public class MapPointModel
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
-        public int LaunchCount { get; set; }
-        public int SuccessCount { get; set; }
-
-        public string Info => $"{Name}\n{LaunchCount} lanzamientos ({SuccessCount} exitosos)";
-    }
-
-    /// <summary>
-    /// ViewModel para la vista de mapa.
-    /// Responsabilidades: gestionar sitios de lanzamiento y proyección de coordenadas.
-    /// (Single Responsibility Principle)
-    /// 
-    /// Asignado a: PERSONA 4
+    /// ViewModel del mapa interactivo de sitios de lanzamiento.
+    /// Responsabilidad única: gestionar datos y estado del mapa.
+    /// No tiene ninguna referencia a controles UI (Canvas, etc.).
+    /// (Single Responsibility Principle + Dependency Inversion)
     /// </summary>
     public partial class MapViewModel : ObservableObject
     {
         private readonly ISpaceXApiService _apiService;
 
+        // ─── Propiedades observables ───────────────────────────────────────────
+
         [ObservableProperty]
         private ObservableCollection<MapPointModel> launchSites = new();
+
+        [ObservableProperty]
+        private MapPointModel? selectedSite;
 
         [ObservableProperty]
         private ObservableCollection<LaunchModel> selectedSiteLaunches = new();
 
         [ObservableProperty]
-        private MapPointModel selectedSite;
-
-        [ObservableProperty]
-        private bool isLoading = false;
-
-        [ObservableProperty]
         private string errorMessage = string.Empty;
+
+        [ObservableProperty]
+        private bool isLoading;
 
         [ObservableProperty]
         private double zoomLevel = 1.0;
@@ -59,60 +45,73 @@ namespace EspaceX_api.ViewModels
         [ObservableProperty]
         private double panY = 0;
 
+        // ─── Constantes de zoom ────────────────────────────────────────────────
+        private const double ZoomStep = 0.2;
+        private const double ZoomMin = 0.5;
+        private const double ZoomMax = 5.0;
+
+        // ─── Constructor ───────────────────────────────────────────────────────
         public MapViewModel(ISpaceXApiService apiService)
         {
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
-        [RelayCommand]
-        public async Task LoadLaunchSites()
+        // ─── Reacción a cambio de sitio seleccionado ───────────────────────────
+        partial void OnSelectedSiteChanged(MapPointModel? value)
         {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
+            SelectedSiteLaunches.Clear();
+            if (value == null) return;
+            _ = LoadLaunchesForSiteAsync(value.Id);
+        }
 
+        // ─── Comandos ──────────────────────────────────────────────────────────
+
+        [RelayCommand]
+        private async Task LoadLaunchSites()
+        {
             try
             {
+                IsLoading = true;
+                ErrorMessage = string.Empty;
+                LaunchSites.Clear();
+
+                // 1. Obtenemos todos los lanzamientos (tiene caché de 1 hora)
                 var launches = await _apiService.GetLaunchesAsync();
-                var sitesDict = new Dictionary<string, MapPointModel>();
 
-                foreach (var launch in launches)
+                // 2. Agrupamos los IDs de plataformas únicas desde los lanzamientos
+                var launchpadIds = launches
+                    .Where(l => !string.IsNullOrEmpty(l.LaunchpadId))
+                    .Select(l => l.LaunchpadId)
+                    .Distinct()
+                    .ToList();
+
+                // 3. Por cada plataforma única pedimos su detalle con GetLaunchpadAsync
+                foreach (var padId in launchpadIds)
                 {
-                    if (string.IsNullOrEmpty(launch.LaunchpadId))
-                        continue;
-
-                    if (!sitesDict.ContainsKey(launch.LaunchpadId))
+                    try
                     {
-                        var launchpad = await _apiService.GetLaunchpadAsync(launch.LaunchpadId);
-                        if (launchpad != null)
+                        var pad = await _apiService.GetLaunchpadAsync(padId);
+                        if (pad == null) continue;
+
+                        LaunchSites.Add(new MapPointModel
                         {
-                            sitesDict[launch.LaunchpadId] = new MapPointModel
-                            {
-                                Id = launchpad.Id,
-                                Name = launchpad.Name,
-                                Latitude = launchpad.Latitude,
-                                Longitude = launchpad.Longitude,
-                                LaunchCount = 0,
-                                SuccessCount = 0
-                            };
-                        }
+                            Id = pad.Id,
+                            Name = pad.Name,
+                            Info = $"{pad.Region} — {pad.LaunchSuccesses}/{pad.LaunchAttempts} lanzamientos",
+                            Latitude = pad.Latitude,
+                            Longitude = pad.Longitude,
+                            TotalLaunches = pad.LaunchAttempts
+                        });
                     }
-
-                    if (sitesDict.ContainsKey(launch.LaunchpadId))
+                    catch
                     {
-                        var point = sitesDict[launch.LaunchpadId];
-                        point.LaunchCount++;
-                        if (launch.Success == true)
-                            point.SuccessCount++;
+                        // Si falla un pad individual, continuamos con los demás
                     }
                 }
-
-                LaunchSites = new ObservableCollection<MapPointModel>(
-                    sitesDict.Values.OrderBy(s => s.Name)
-                );
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Error: {ex.Message}";
+                ErrorMessage = $"Error al cargar sitios: {ex.Message}";
             }
             finally
             {
@@ -120,72 +119,68 @@ namespace EspaceX_api.ViewModels
             }
         }
 
-        partial void OnSelectedSiteChanged(MapPointModel value)
+        [RelayCommand]
+        private void ZoomIn()
         {
-            LoadSiteLaunches(value?.Id);
+            ZoomLevel = Math.Min(ZoomLevel + ZoomStep, ZoomMax);
         }
 
         [RelayCommand]
-        public void ZoomIn()
+        private void ZoomOut()
         {
-            ZoomLevel = Math.Min(ZoomLevel + 0.2, 3.0);
+            ZoomLevel = Math.Max(ZoomLevel - ZoomStep, ZoomMin);
         }
 
         [RelayCommand]
-        public void ZoomOut()
-        {
-            ZoomLevel = Math.Max(ZoomLevel - 0.2, 0.5);
-        }
-
-        [RelayCommand]
-        public void ResetView()
+        private void ResetView()
         {
             ZoomLevel = 1.0;
             PanX = 0;
             PanY = 0;
         }
 
-        private async void LoadSiteLaunches(string launchpadId)
+        // ─── Método público: proyección Mercator ───────────────────────────────
+        /// <summary>
+        /// Convierte coordenadas geográficas a coordenadas de pantalla
+        /// aplicando proyección Mercator + zoom + pan.
+        /// Es público para que MapView.xaml.cs lo use al dibujar.
+        /// </summary>
+        public (double x, double y) GeographicToScreenCoordinates(
+            double latitude, double longitude, double canvasWidth, double canvasHeight)
         {
-            if (string.IsNullOrEmpty(launchpadId))
-            {
-                SelectedSiteLaunches.Clear();
-                return;
-            }
+            double x = (longitude + 180.0) / 360.0;
+            double latRad = latitude * Math.PI / 180.0;
+            double mercN = Math.Log(Math.Tan(Math.PI / 4 + latRad / 2));
+            double y = 0.5 - mercN / (2 * Math.PI);
 
+            double screenX = x * canvasWidth * ZoomLevel + PanX;
+            double screenY = y * canvasHeight * ZoomLevel + PanY;
+
+            return (screenX, screenY);
+        }
+
+        // ─── Carga lanzamientos del sitio seleccionado ─────────────────────────
+        private async Task LoadLaunchesForSiteAsync(string siteId)
+        {
             try
             {
                 var launches = await _apiService.GetLaunchesAsync();
-                var siteLaunches = launches
-                    .Where(l => l.LaunchpadId == launchpadId)
+
+                SelectedSiteLaunches.Clear();
+
+                // Filtramos usando LaunchpadId (nombre real de la propiedad en LaunchModel)
+                var filtered = launches
+                    .Where(l => l.LaunchpadId == siteId)
                     .OrderByDescending(l => l.DateUtc)
-                    .ToList();
+                    .Take(20);
 
-                SelectedSiteLaunches = new ObservableCollection<LaunchModel>(siteLaunches);
+                foreach (var launch in filtered)
+                    SelectedSiteLaunches.Add(launch);
             }
-            catch (Exception ex)
+            catch
             {
-                ErrorMessage = $"Error: {ex.Message}";
+                // Silencioso: no interrumpir UX por fallo en detalle del sitio
             }
-        }
-
-        /// <summary>
-        /// Convierte coordenadas geográficas a coordenadas de pantalla.
-        /// Usa proyección Mercator simplificada.
-        /// </summary>
-        public (double X, double Y) GeographicToScreenCoordinates(double latitude, double longitude,
-            double canvasWidth, double canvasHeight)
-        {
-            const double maxLat = 85.051129;
-            const double maxLon = 180;
-
-            double x = (longitude + maxLon) / (maxLon * 2);
-            double y = (maxLat - latitude) / (maxLat * 2);
-
-            double screenX = (x * canvasWidth * ZoomLevel) + PanX;
-            double screenY = (y * canvasHeight * ZoomLevel) + PanY;
-
-            return (screenX, screenY);
         }
     }
 }

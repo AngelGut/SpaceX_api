@@ -5,20 +5,17 @@
     <Grid>
         <DockPanel>
             <!-- Toolbar -->
-            <Border DockPanel.Dock="Top" Background="#333333" Padding="15" BorderThickness="0,0,0,1" BorderBrush="#0066cc">
-                <StackPanel Orientation="Horizontal" Spacing="10">
+            <Border DockPanel.Dock="Top" Background="#333333" Padding="15"
+                    BorderThickness="0,0,0,1" BorderBrush="#0066cc">
+                <StackPanel Orientation="Horizontal">
                     <Button Command="{Binding LoadRocketsCommand}" 
-                            Background="#0066cc" 
-                            Foreground="White" 
-                            Padding="15,8"
-                            FontWeight="Bold">
+                            Background="#0066cc" Foreground="White" 
+                            Padding="15,8" FontWeight="Bold" Margin="0,0,8,0">
                         📥 Cargar
                     </Button>
                     <Button Command="{Binding RefreshCommand}" 
-                            Background="#0066cc" 
-                            Foreground="White" 
-                            Padding="15,8"
-                            FontWeight="Bold">
+                            Background="#0066cc" Foreground="White" 
+                            Padding="15,8" FontWeight="Bold">
                         🔄 Actualizar
                     </Button>
                 </StackPanel>
@@ -27,9 +24,7 @@
             <!-- Error Message -->
             <Border DockPanel.Dock="Bottom" Background="#ff6666" Padding="15"
                     Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
-                <TextBlock Text="{Binding ErrorMessage}" 
-                           Foreground="White"
-                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="White" TextWrapping="Wrap"/>
             </Border>
 
             <!-- DataGrid -->
@@ -39,9 +34,10 @@
                       Background="#2a2a2a"
                       Foreground="White"
                       GridLinesVisibility="Horizontal"
-                      GridLinesBrush="#444444"
+                      HorizontalGridLinesBrush="#444444"
                       RowHeaderWidth="0"
-                      CanUserAddRows="False">
+                      CanUserAddRows="False"
+                      IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="150"/>
                     <DataGridTextColumn Header="Tipo" Binding="{Binding Type}" Width="120"/>
@@ -49,7 +45,7 @@
                     <DataGridTextColumn Header="Primer vuelo" Binding="{Binding FirstFlight}" Width="120"/>
                     <DataGridTextColumn Header="Altura" Binding="{Binding HeightFormatted}" Width="130"/>
                     <DataGridTextColumn Header="Masa" Binding="{Binding MassFormatted}" Width="120"/>
-                    <DataGridTextColumn Header="Tasa éxito" Binding="{Binding SuccessRatePct, StringFormat='{0:F1}%'}" Width="100"/>
+                    <DataGridTextColumn Header="Tasa éxito" Binding="{Binding SuccessRatePct, StringFormat='{}{0:F1}%'}" Width="100"/>
                     <DataGridTextColumn Header="Costo" Binding="{Binding CostFormatted}" Width="130"/>
                 </DataGrid.Columns>
             </DataGrid>

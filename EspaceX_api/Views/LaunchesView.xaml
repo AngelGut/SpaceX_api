@@ -5,38 +5,29 @@
     <Grid>
         <DockPanel>
             <!-- Toolbar -->
-            <Border DockPanel.Dock="Top" Background="#333333" Padding="15" BorderThickness="0,0,0,1" BorderBrush="#0066cc">
-                <StackPanel Orientation="Horizontal" Spacing="10">
+            <Border DockPanel.Dock="Top" Background="#333333" Padding="15"
+                    BorderThickness="0,0,0,1" BorderBrush="#0066cc">
+                <StackPanel Orientation="Horizontal">
                     <Button Command="{Binding LoadLaunchesCommand}" 
-                            Background="#0066cc" 
-                            Foreground="White" 
-                            Padding="15,8"
-                            FontWeight="Bold">
+                            Background="#0066cc" Foreground="White" 
+                            Padding="15,8" FontWeight="Bold" Margin="0,0,8,0">
                         📥 Cargar
                     </Button>
                     <Button Command="{Binding RefreshCommand}" 
-                            Background="#0066cc" 
-                            Foreground="White" 
-                            Padding="15,8"
-                            FontWeight="Bold">
+                            Background="#0066cc" Foreground="White" 
+                            Padding="15,8" FontWeight="Bold" Margin="0,0,15,0">
                         🔄 Actualizar
                     </Button>
-                    <Separator Background="#555555"/>
-                    <TextBlock Text="Búsqueda:" 
-                               VerticalAlignment="Center" 
-                               Foreground="White"/>
+                    <Separator Background="#555555" Margin="0,0,15,0"/>
+                    <TextBlock Text="Búsqueda:" VerticalAlignment="Center" 
+                               Foreground="White" Margin="0,0,8,0"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
-                             Background="#444444" 
-                             Foreground="White" 
-                             Padding="8"
-                             Width="250"/>
-                    <TextBlock Text="Estado:" 
-                               VerticalAlignment="Center" 
-                               Foreground="White"/>
+                             Background="#444444" Foreground="White" 
+                             Padding="8" Width="250" Margin="0,0,15,0"/>
+                    <TextBlock Text="Estado:" VerticalAlignment="Center" 
+                               Foreground="White" Margin="0,0,8,0"/>
                     <ComboBox SelectedItem="{Binding StatusFilter}" 
-                              Background="#444444" 
-                              Foreground="White"
-                              Width="150">
+                              Background="#444444" Foreground="White" Width="150">
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Todos</System:String>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Próximo</System:String>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Exitoso</System:String>
@@ -46,11 +37,9 @@
             </Border>
 
             <!-- Error Message -->
-            <Border DockPanel.Dock="Bottom" Background="#ff6666" Padding="15" 
+            <Border DockPanel.Dock="Bottom" Background="#ff6666" Padding="15"
                     Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
-                <TextBlock Text="{Binding ErrorMessage}" 
-                           Foreground="White"
-                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="White" TextWrapping="Wrap"/>
             </Border>
 
             <!-- DataGrid -->
@@ -59,9 +48,10 @@
                       Background="#2a2a2a"
                       Foreground="White"
                       GridLinesVisibility="Horizontal"
-                      GridLinesBrush="#444444"
+                      HorizontalGridLinesBrush="#444444"
                       RowHeaderWidth="0"
-                      CanUserAddRows="False">
+                      CanUserAddRows="False"
+                      IsReadOnly="True">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="250"/>
                     <DataGridTextColumn Header="Fecha" Binding="{Binding DateFormatted}" Width="150"/>

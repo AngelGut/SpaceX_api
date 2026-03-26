@@ -1,0 +1,50 @@
+<Window x:Class="EspaceX_api.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:EspaceX_api"
+        Title="SpaceX Explorer" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#1a1a1a">
+    <Grid>
+        <DockPanel>
+            <!-- Header -->
+            <Border DockPanel.Dock="Top" Background="#0066cc" Height="60" Padding="20,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="20">
+                    <TextBlock Text="🚀 SpaceX Explorer" 
+                               FontSize="28" 
+                               FontWeight="Bold" 
+                               Foreground="White"/>
+                    <TextBlock Text="| Datos en vivo desde SpaceX API" 
+                               FontSize="14" 
+                               Foreground="#cccccc"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ContentControl - Aquí va la vista actual -->
+            <ContentControl Content="{Binding CurrentViewModel}">
+                <ContentControl.Resources>
+                    <!-- DataTemplate para HomeViewModel → HomeView -->
+                    <DataTemplate DataType="{x:Type local:HomeViewModel}">
+                        <local:HomeView />
+                    </DataTemplate>
+
+                    <!-- DataTemplate para LaunchesViewModel → LaunchesView -->
+                    <DataTemplate DataType="{x:Type local:LaunchesViewModel}">
+                        <local:LaunchesView />
+                    </DataTemplate>
+
+                    <!-- DataTemplate para RocketsViewModel → RocketsView -->
+                    <DataTemplate DataType="{x:Type local:RocketsViewModel}">
+                        <local:RocketsView />
+                    </DataTemplate>
+
+                    <!-- DataTemplate para MapViewModel → MapView -->
+                    <DataTemplate DataType="{x:Type local:MapViewModel}">
+                        <local:MapView />
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </DockPanel>
+    </Grid>
+</Window>

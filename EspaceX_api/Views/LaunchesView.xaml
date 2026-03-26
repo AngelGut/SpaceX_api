@@ -1,0 +1,74 @@
+<UserControl x:Class="EspaceX_api.LaunchesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#1a1a1a">
+    <Grid>
+        <DockPanel>
+            <!-- Toolbar -->
+            <Border DockPanel.Dock="Top" Background="#333333" Padding="15" BorderThickness="0,0,0,1" BorderBrush="#0066cc">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Command="{Binding LoadLaunchesCommand}" 
+                            Background="#0066cc" 
+                            Foreground="White" 
+                            Padding="15,8"
+                            FontWeight="Bold">
+                        📥 Cargar
+                    </Button>
+                    <Button Command="{Binding RefreshCommand}" 
+                            Background="#0066cc" 
+                            Foreground="White" 
+                            Padding="15,8"
+                            FontWeight="Bold">
+                        🔄 Actualizar
+                    </Button>
+                    <Separator Background="#555555"/>
+                    <TextBlock Text="Búsqueda:" 
+                               VerticalAlignment="Center" 
+                               Foreground="White"/>
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                             Background="#444444" 
+                             Foreground="White" 
+                             Padding="8"
+                             Width="250"/>
+                    <TextBlock Text="Estado:" 
+                               VerticalAlignment="Center" 
+                               Foreground="White"/>
+                    <ComboBox SelectedItem="{Binding StatusFilter}" 
+                              Background="#444444" 
+                              Foreground="White"
+                              Width="150">
+                        <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Todos</System:String>
+                        <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Próximo</System:String>
+                        <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Exitoso</System:String>
+                        <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Fallido</System:String>
+                    </ComboBox>
+                </StackPanel>
+            </Border>
+
+            <!-- Error Message -->
+            <Border DockPanel.Dock="Bottom" Background="#ff6666" Padding="15" 
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="White"
+                           TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- DataGrid -->
+            <DataGrid ItemsSource="{Binding FilteredLaunches}"
+                      AutoGenerateColumns="False"
+                      Background="#2a2a2a"
+                      Foreground="White"
+                      GridLinesVisibility="Horizontal"
+                      GridLinesBrush="#444444"
+                      RowHeaderWidth="0"
+                      CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="250"/>
+                    <DataGridTextColumn Header="Fecha" Binding="{Binding DateFormatted}" Width="150"/>
+                    <DataGridTextColumn Header="Estado" Binding="{Binding Status}" Width="100"/>
+                    <DataGridTextColumn Header="Detalles" Binding="{Binding Details}" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </Grid>
+</UserControl>

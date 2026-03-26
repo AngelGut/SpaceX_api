@@ -47,19 +47,41 @@
                     <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Canvas del mapa -->
-                <Canvas Grid.Column="0" Background="#0a0a0a" x:Name="MapCanvas"/>
+                <!-- Canvas del mapa + Overlay de carga -->
+                <Grid Grid.Column="0">
+
+                    <Canvas Background="#0a0a0a" x:Name="MapCanvas"/>
+
+                    <!-- Overlay semitransparente mientras IsLoading = true -->
+                    <Border Background="#AA000000"
+                            Visibility="{Binding IsLoading,
+                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Cargando sitios..."
+                                       Foreground="White"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"/>
+                            <ProgressBar IsIndeterminate="True"
+                                         Width="200"
+                                         Height="8"
+                                         Margin="0,15,0,0"
+                                         Foreground="#0066cc"
+                                         Background="#333333"/>
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
 
                 <!-- Sidebar -->
                 <Border Grid.Column="1" Background="#2a2a2a"
                         BorderThickness="1,0,0,0" BorderBrush="#444444">
                     <DockPanel>
-
                         <TextBlock DockPanel.Dock="Top"
                                    Text="Sitios de Lanzamiento"
                                    FontSize="14" FontWeight="Bold"
                                    Foreground="White" Padding="15,10"/>
-
                         <Border DockPanel.Dock="Bottom" Background="#1a1a1a"
                                 Padding="10,8" BorderThickness="0,1,0,0"
                                 BorderBrush="#555555">
@@ -67,7 +89,6 @@
                                        FontSize="12" FontWeight="Bold"
                                        Foreground="White"/>
                         </Border>
-
                         <DataGrid DockPanel.Dock="Bottom"
                                   ItemsSource="{Binding SelectedSiteLaunches}"
                                   AutoGenerateColumns="False"
@@ -84,7 +105,6 @@
                                                     Width="80"/>
                             </DataGrid.Columns>
                         </DataGrid>
-
                         <ListBox ItemsSource="{Binding LaunchSites}"
                                  SelectedItem="{Binding SelectedSite}"
                                  Background="#2a2a2a" Foreground="White"
@@ -105,9 +125,9 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-
                     </DockPanel>
                 </Border>
+
             </Grid>
         </DockPanel>
     </Grid>

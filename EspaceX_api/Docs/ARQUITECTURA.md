@@ -13,7 +13,7 @@
 
 ## Visión General
 
-EspaceX_api sigue una **arquitectura en capas** con separación clara de responsabilidades:
+EspaceX_api sigue una **MVVM** 
 
 ```
 ┌─────────────────────────────────────┐
@@ -50,7 +50,7 @@ EspaceX_api sigue una **arquitectura en capas** con separación clara de respons
 
 ### 1️⃣ **Single Responsibility Principle (SRP)**
 
-Cada clase tiene **una única razón para cambiar**.
+Cada clase tiene **una única razón para existir**.
 
 **✅ Bien:**
 ```csharp
@@ -406,4 +406,4 @@ Esta arquitectura permite que:
 
 ---
 
-**[Volver a README →](../README.md)**
+

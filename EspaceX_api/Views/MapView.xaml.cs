@@ -1,179 +1,226 @@
+using EspaceX_api.Models;
 using EspaceX_api.ViewModels;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace EspaceX_api
+namespace EspaceX_api.Views
 {
+    /// <summary>
+    /// Code-behind de MapView.
+    /// Responsabilidad única: dibujar el mapa en el Canvas y capturar
+    /// eventos de mouse, delegando toda la lógica al MapViewModel.
+    /// (Single Responsibility Principle)
+    /// </summary>
     public partial class MapView : UserControl
     {
-        private MapViewModel _mapVM;
-        private Point _lastMousePosition;
+        // Acceso tipado al ViewModel vinculado al DataContext
+        private MapViewModel? ViewModel => DataContext as MapViewModel;
 
         public MapView()
         {
             InitializeComponent();
-            this.Loaded += MapView_Loaded;
+            DataContextChanged += OnDataContextChanged;
+            Loaded += OnLoaded;
         }
 
-        private void MapView_Loaded(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Se suscribe a PropertyChanged del ViewModel para redibujar
+        /// cuando cambian datos relevantes (sitios, zoom, pan).
+        /// </summary>
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            _mapVM = this.DataContext as MapViewModel;
-            if (_mapVM != null)
+            if (e.NewValue is MapViewModel vm)
             {
-                MapCanvas.MouseWheel += MapCanvas_MouseWheel;
-                MapCanvas.MouseLeftButtonDown += MapCanvas_MouseLeftButtonDown;
-                MapCanvas.MouseMove += MapCanvas_MouseMove;
-                MapCanvas.SizeChanged += MapCanvas_SizeChanged;
-                _mapVM.PropertyChanged += MapVM_PropertyChanged;
+                vm.PropertyChanged += (s, args) =>
+                {
+                    if (args.PropertyName is nameof(vm.LaunchSites)
+                                          or nameof(vm.ZoomLevel)
+                                          or nameof(vm.PanX)
+                                          or nameof(vm.PanY))
+                    {
+                        DrawMap();
+                    }
+                };
             }
         }
 
-        private void MapVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        /// <summary>
+        /// Enlaza los eventos del mouse al Canvas una vez que el control está cargado.
+        /// </summary>
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            if (e.PropertyName is "LaunchSites" or "ZoomLevel" or "PanX" or "PanY")
-            {
-                DrawMap();
-            }
+            MapCanvas.MouseWheel += OnMouseWheel;
+            MapCanvas.MouseLeftButtonDown += OnMouseLeftButtonDown;
+            MapCanvas.MouseLeftButtonUp += OnMouseLeftButtonUp;
+            MapCanvas.MouseMove += OnMouseMove;
+            MapCanvas.SizeChanged += (s, args) => DrawMap();
         }
 
+
+        /// <summary>
+        /// Limpia el Canvas y redibuja la grilla y todos los sitios de lanzamiento.
+        /// </summary>
         private void DrawMap()
         {
             MapCanvas.Children.Clear();
 
-            if (_mapVM?.LaunchSites == null || _mapVM.LaunchSites.Count == 0)
+            if (ViewModel == null || ViewModel.LaunchSites.Count == 0)
                 return;
 
             double width = MapCanvas.ActualWidth;
             double height = MapCanvas.ActualHeight;
 
-            DrawGridLines(width, height);
+            if (width <= 0 || height <= 0) return;
 
-            foreach (var site in _mapVM.LaunchSites)
+            DrawGrid(width, height);
+
+            foreach (var site in ViewModel.LaunchSites)
             {
-                var (screenX, screenY) = _mapVM.GeographicToScreenCoordinates(
-                    site.Latitude, site.Longitude, width, height
-                );
+                var (screenX, screenY) = ViewModel.GeographicToScreenCoordinates(
+                    site.Latitude, site.Longitude, width, height);
 
-                var circle = new Ellipse
-                {
-                    Width = 12,
-                    Height = 12,
-                    Fill = new SolidColorBrush(Colors.Red),
-                    Stroke = new SolidColorBrush(Colors.DarkRed),
-                    StrokeThickness = 2,
-                    ToolTip = new ToolTip { Content = site.Info }
-                };
+                if (screenX < 0 || screenX > width || screenY < 0 || screenY > height)
+                    continue;
 
-                Canvas.SetLeft(circle, screenX - 6);
-                Canvas.SetTop(circle, screenY - 6);
-                MapCanvas.Children.Add(circle);
-
-                circle.MouseLeftButtonDown += (s, e) =>
-                {
-                    _mapVM.SelectedSite = site;
-                    e.Handled = true;
-                };
-
-                circle.MouseEnter += (s, e) =>
-                {
-                    circle.Fill = new SolidColorBrush(Color.FromRgb(255, 100, 100));
-                };
-
-                circle.MouseLeave += (s, e) =>
-                {
-                    circle.Fill = new SolidColorBrush(Colors.Red);
-                };
-
-                var textBlock = new TextBlock
-                {
-                    Text = site.Name,
-                    Foreground = new SolidColorBrush(Colors.White),
-                    FontSize = 10,
-                    Background = new SolidColorBrush(Color.FromArgb(200, 0, 0, 0))
-                };
-
-                Canvas.SetLeft(textBlock, screenX + 15);
-                Canvas.SetTop(textBlock, screenY - 6);
-                MapCanvas.Children.Add(textBlock);
+                DrawLaunchSite(screenX, screenY, site);
             }
         }
 
-        private void DrawGridLines(double width, double height)
+        /// <summary>
+        /// Dibuja una grilla de líneas de latitud y longitud sobre el Canvas.
+        /// </summary>
+        private void DrawGrid(double width, double height)
         {
-            var gridPen = new Pen(new SolidColorBrush(Color.FromArgb(50, 100, 100, 100)), 1);
+            var gridColor = new SolidColorBrush(Color.FromRgb(40, 40, 40));
+
+            for (int lat = -60; lat <= 80; lat += 30)
+            {
+                var (_, y) = ViewModel!.GeographicToScreenCoordinates(lat, 0, width, height);
+                MapCanvas.Children.Add(new Line
+                {
+                    X1 = 0,
+                    Y1 = y,
+                    X2 = width,
+                    Y2 = y,
+                    Stroke = gridColor,
+                    StrokeThickness = 0.5
+                });
+            }
 
             for (int lon = -180; lon <= 180; lon += 30)
             {
-                var (screenX, _) = _mapVM.GeographicToScreenCoordinates(0, lon, width, height);
-                var line = new Line
+                var (x, _) = ViewModel!.GeographicToScreenCoordinates(0, lon, width, height);
+                MapCanvas.Children.Add(new Line
                 {
-                    X1 = screenX,
+                    X1 = x,
                     Y1 = 0,
-                    X2 = screenX,
+                    X2 = x,
                     Y2 = height,
-                    Stroke = gridPen.Brush,
-                    StrokeThickness = 0.5,
-                    Opacity = 0.3
-                };
-                MapCanvas.Children.Add(line);
+                    Stroke = gridColor,
+                    StrokeThickness = 0.5
+                });
             }
+        }
 
-            for (int lat = -60; lat <= 85; lat += 30)
+        /// <summary>
+        /// Dibuja un punto rojo con halo y etiqueta para un sitio de lanzamiento.
+        /// Al hacer click actualiza SelectedSite en el ViewModel.
+        /// </summary>
+        private void DrawLaunchSite(double x, double y, MapPointModel site)
+        {
+            const double radius = 8;
+
+            // Halo rojo semitransparente
+            var glow = new Ellipse
             {
-                var (_, screenY) = _mapVM.GeographicToScreenCoordinates(lat, 0, width, height);
-                var line = new Line
-                {
-                    X1 = 0,
-                    Y1 = screenY,
-                    X2 = width,
-                    Y2 = screenY,
-                    Stroke = gridPen.Brush,
-                    StrokeThickness = 0.5,
-                    Opacity = 0.3
-                };
-                MapCanvas.Children.Add(line);
-            }
+                Width = radius * 2.5,
+                Height = radius * 2.5,
+                Fill = new SolidColorBrush(Color.FromArgb(60, 255, 50, 50))
+            };
+            Canvas.SetLeft(glow, x - radius * 1.25);
+            Canvas.SetTop(glow, y - radius * 1.25);
+            MapCanvas.Children.Add(glow);
+
+            // Punto rojo principal
+            var dot = new Ellipse
+            {
+                Width = radius * 2,
+                Height = radius * 2,
+                Fill = new SolidColorBrush(Color.FromRgb(220, 50, 50)),
+                Stroke = new SolidColorBrush(Colors.White),
+                StrokeThickness = 1,
+                ToolTip = site.Info,
+                Cursor = Cursors.Hand
+            };
+            Canvas.SetLeft(dot, x - radius);
+            Canvas.SetTop(dot, y - radius);
+
+            dot.MouseLeftButtonDown += (s, e) =>
+            {
+                if (ViewModel != null)
+                    ViewModel.SelectedSite = site;
+                e.Handled = true;
+            };
+            MapCanvas.Children.Add(dot);
+
+            // Etiqueta con nombre del sitio
+            var label = new TextBlock
+            {
+                Text = site.Name,
+                Foreground = new SolidColorBrush(Colors.White),
+                FontSize = 10
+            };
+            Canvas.SetLeft(label, x + radius + 2);
+            Canvas.SetTop(label, y - 7);
+            MapCanvas.Children.Add(label);
         }
 
-        private void MapCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
+
+        /// <summary>
+        /// Zoom con rueda del mouse — delega al comando del ViewModel.
+        /// La View no decide cuánto hacer zoom, solo notifica la dirección.
+        /// </summary>
+        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
+            if (ViewModel == null) return;
+
             if (e.Delta > 0)
-                _mapVM.ZoomInCommand.Execute(null);
+                ViewModel.ZoomInCommand.Execute(null);
             else
-                _mapVM.ZoomOutCommand.Execute(null);
-
-            e.Handled = true;
+                ViewModel.ZoomOutCommand.Execute(null);
         }
 
-        private void MapCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        /// <summary>
+        /// Inicio del drag — la View solo pasa las coordenadas al ViewModel.
+        /// El estado _isDragging vive en el ViewModel, no aquí.
+        /// </summary>
+        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            _lastMousePosition = e.GetPosition(MapCanvas);
+            var pos = e.GetPosition(MapCanvas);
+            ViewModel?.BeginDrag(pos.X, pos.Y);
             MapCanvas.CaptureMouse();
         }
 
-        private void MapCanvas_MouseMove(object sender, MouseEventArgs e)
+        /// <summary>
+        /// Fin del drag — la View notifica al ViewModel que terminó.
+        /// </summary>
+        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                Point currentPosition = e.GetPosition(MapCanvas);
-                double deltaX = currentPosition.X - _lastMousePosition.X;
-                double deltaY = currentPosition.Y - _lastMousePosition.Y;
-
-                _mapVM.PanX += deltaX;
-                _mapVM.PanY += deltaY;
-                _lastMousePosition = currentPosition;
-
-                DrawMap();
-            }
+            ViewModel?.EndDrag();
+            MapCanvas.ReleaseMouseCapture();
         }
 
-        private void MapCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        /// <summary>
+        /// Movimiento del mouse durante el drag — la View pasa las coordenadas actuales.
+        /// El ViewModel calcula el delta y actualiza PanX/PanY.
+        /// </summary>
+        private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            DrawMap();
+            var pos = e.GetPosition(MapCanvas);
+            ViewModel?.UpdateDrag(pos.X, pos.Y);
         }
     }
 }

@@ -1,24 +1,31 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System;
 
 namespace EspaceX_api.ViewModels
 {
-    /// <summary>
-    /// ViewModel para la vista de inicio/menú.
-    /// Responsabilidad única: gestionar el estado del menú home.
-    /// (Single Responsibility Principle)
-    /// 
-    /// Asignado a: PERSONA 1
-    /// </summary>
     public partial class HomeViewModel : ObservableObject
     {
-        [ObservableProperty]
-        private string title = "SpaceX Explorer";
+        private readonly MainViewModel _mainViewModel;
 
         [ObservableProperty]
-        private string subtitle = "Explora datos en tiempo real de SpaceX";
+        private string title = "Explorer";
 
-        public HomeViewModel()
+        [ObservableProperty]
+        private string subtitle = "Datos en tiempo real de misiones, cohetes y sitios de lanzamiento";
+
+        public HomeViewModel(MainViewModel mainViewModel)
         {
+            _mainViewModel = mainViewModel ?? throw new ArgumentNullException(nameof(mainViewModel));
         }
+
+        [RelayCommand]
+        public void GoToLaunches() => _mainViewModel.NavigateToLaunchesCommand.Execute(null);
+
+        [RelayCommand]
+        public void GoToRockets() => _mainViewModel.NavigateToRocketsCommand.Execute(null);
+
+        [RelayCommand]
+        public void GoToMap() => _mainViewModel.NavigateToMapCommand.Execute(null);
     }
 }

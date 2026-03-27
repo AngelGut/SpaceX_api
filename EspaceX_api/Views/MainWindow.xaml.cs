@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace EspaceX_api
+namespace EspaceX_api.Views
 {
     public partial class MainWindow : Window
     {

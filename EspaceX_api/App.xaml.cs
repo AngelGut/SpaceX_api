@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using EspaceX_api.Services;
 using EspaceX_api.ViewModels;
+using EspaceX_api.Views;
 using System;
 using System.Globalization;
 using System.Windows;

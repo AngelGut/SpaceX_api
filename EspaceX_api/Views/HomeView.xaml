@@ -2,8 +2,17 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="#020810">
+    <!--
+        HomeView.xaml — Vista principal del Home
+        Responsabilidad: presentación de menú de navegación con estilo espacial.
+        DataContext: HomeViewModel (asignado por constructor DI o DataTemplate).
+        Animaciones de cohetes definidas en UserControl.Triggers.
+        Animaciones de estrellas generadas en code-behind (HomeView.xaml.cs).
+    -->
 
     <UserControl.Resources>
+
+        <!-- Estilo base para las 3 tarjetas de navegación -->
         <Style x:Key="CardStyle" TargetType="Button">
             <Setter Property="Width" Value="185"/>
             <Setter Property="Height" Value="185"/>
@@ -15,6 +24,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
+                        <!-- Contenedor con bordes redondeados -->
                         <Border x:Name="CardBorder"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
@@ -24,9 +34,11 @@
                                               VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
+                            <!-- Hover: cambiar color del borde -->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="CardBorder" Property="BorderBrush" Value="#2A4870"/>
                             </Trigger>
+                            <!-- Click: oscurecer fondo -->
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="CardBorder" Property="Background" Value="#0D1F3C"/>
                             </Trigger>
@@ -36,6 +48,7 @@
             </Setter>
         </Style>
 
+        <!-- Contenedor de ícono con acento cian — tarjeta Lanzamientos -->
         <Style x:Key="IconWrapCyan" TargetType="Border">
             <Setter Property="Width" Value="52"/>
             <Setter Property="Height" Value="52"/>
@@ -46,6 +59,7 @@
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
 
+        <!-- Contenedor de ícono con acento morado — tarjeta Cohetes -->
         <Style x:Key="IconWrapPurple" TargetType="Border">
             <Setter Property="Width" Value="52"/>
             <Setter Property="Height" Value="52"/>
@@ -56,6 +70,7 @@
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
 
+        <!-- Contenedor de ícono con acento verde — tarjeta Mapa -->
         <Style x:Key="IconWrapGreen" TargetType="Border">
             <Setter Property="Width" Value="52"/>
             <Setter Property="Height" Value="52"/>
@@ -65,29 +80,40 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
+
     </UserControl.Resources>
 
+    <!--
+        Animaciones XAML de cohetes.
+        Se activan al cargar la vista (RoutedEvent="Loaded").
+        Rocket1: cohete 🚀 sube cada 8 segundos desde abajo.
+        Rocket2: nave 🛸 sube cada 11 segundos con delay de 4 segundos.
+    -->
     <UserControl.Triggers>
         <EventTrigger RoutedEvent="Loaded">
             <BeginStoryboard>
                 <Storyboard>
+                    <!-- Rocket1: movimiento vertical hacia arriba -->
                     <DoubleAnimation Storyboard.TargetName="Rocket1"
                                      Storyboard.TargetProperty="(Canvas.Top)"
                                      From="700" To="-60"
                                      Duration="0:0:8"
                                      RepeatBehavior="Forever"/>
+                    <!-- Rocket1: fade in/out durante el recorrido -->
                     <DoubleAnimation Storyboard.TargetName="Rocket1"
                                      Storyboard.TargetProperty="Opacity"
                                      From="0" To="1"
                                      Duration="0:0:0.5"
                                      AutoReverse="True"
                                      RepeatBehavior="Forever"/>
+                    <!-- Rocket2: movimiento vertical con delay de 4 segundos -->
                     <DoubleAnimation Storyboard.TargetName="Rocket2"
                                      Storyboard.TargetProperty="(Canvas.Top)"
                                      From="700" To="-60"
                                      Duration="0:0:11"
                                      BeginTime="0:0:4"
                                      RepeatBehavior="Forever"/>
+                    <!-- Rocket2: fade in/out con mismo delay -->
                     <DoubleAnimation Storyboard.TargetName="Rocket2"
                                      Storyboard.TargetProperty="Opacity"
                                      From="0" To="1"
@@ -101,13 +127,18 @@
     </UserControl.Triggers>
 
     <Grid>
+        <!-- Canvas del fondo: las estrellas se generan aquí desde el code-behind -->
         <Canvas x:Name="StarsCanvas"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"/>
 
+        <!-- Canvas de cohetes animados — separado del StarsCanvas para evitar conflictos -->
         <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <!-- Cohete principal: sube por la izquierda inclinado -->
             <TextBlock x:Name="Rocket1"
-                       Text="🚀" FontSize="28"
+                       Text="🚀"
+                       FontSize="28"
                        Foreground="White"
                        Opacity="0"
                        Canvas.Left="120"
@@ -117,8 +148,11 @@
                     <RotateTransform Angle="-15"/>
                 </TextBlock.RenderTransform>
             </TextBlock>
+
+            <!-- Nave secundaria: sube por la derecha con menor inclinación -->
             <TextBlock x:Name="Rocket2"
-                       Text="🛸" FontSize="20"
+                       Text="🛸"
+                       FontSize="20"
                        Foreground="White"
                        Opacity="0"
                        Canvas.Left="650"
@@ -128,10 +162,13 @@
                     <RotateTransform Angle="-10"/>
                 </TextBlock.RenderTransform>
             </TextBlock>
+
         </Canvas>
 
+        <!-- Contenido principal centrado verticalmente -->
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
+            <!-- Badge decorativo superior -->
             <Border HorizontalAlignment="Center"
                     CornerRadius="12"
                     Background="#00D4FF0D"
@@ -145,6 +182,7 @@
                            FontWeight="Bold"/>
             </Border>
 
+            <!-- Título bicolor: "SpaceX" blanco + título del ViewModel en cian -->
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Margin="0,0,0,8">
@@ -152,36 +190,55 @@
                            Foreground="White"
                            FontSize="32"
                            FontWeight="Bold"/>
+                <!-- Title viene del HomeViewModel via binding -->
                 <TextBlock Text="{Binding Title}"
                            Foreground="#00D4FF"
                            FontSize="32"
                            FontWeight="Bold"/>
             </StackPanel>
 
+            <!-- Subtítulo desde el HomeViewModel via binding -->
             <TextBlock Text="{Binding Subtitle}"
                        Foreground="#4A6080"
                        FontSize="13"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,48"/>
 
+            <!-- Fila de tarjetas de navegación -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
+                <!-- ==================== TARJETA LANZAMIENTOS ==================== -->
                 <Button Style="{StaticResource CardStyle}"
                         Command="{Binding GoToLaunchesCommand}">
                     <StackPanel HorizontalAlignment="Center">
+                        <!-- Ícono con fondo cian -->
                         <Border Style="{StaticResource IconWrapCyan}" HorizontalAlignment="Center">
                             <TextBlock Text="🚀" FontSize="22"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="#00D4FF"/>
                         </Border>
-                        <TextBlock Text="Lanzamientos" Foreground="#E2E8F0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Historial completo" Foreground="#4A6080" FontSize="11" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Explorar ›" Foreground="#00D4FF" FontSize="11" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <TextBlock Text="Lanzamientos"
+                                   Foreground="#E2E8F0"
+                                   FontSize="15"
+                                   FontWeight="Normal"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Historial completo"
+                                   Foreground="#4A6080"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"/>
+                        <!-- "Explorar ›" aparece animado al hacer hover -->
+                        <TextBlock Text="Explorar ›"
+                                   Foreground="#00D4FF"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,0">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Opacity" Value="0"/>
                                     <Style.Triggers>
+                                        <!-- Detecta hover del Button padre via RelativeSource -->
                                         <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
                                             <DataTrigger.EnterActions>
                                                 <BeginStoryboard>
@@ -205,18 +262,33 @@
                     </StackPanel>
                 </Button>
 
+                <!-- ==================== TARJETA COHETES ==================== -->
                 <Button Style="{StaticResource CardStyle}"
                         Command="{Binding GoToRocketsCommand}">
                     <StackPanel HorizontalAlignment="Center">
+                        <!-- Ícono con fondo morado -->
                         <Border Style="{StaticResource IconWrapPurple}" HorizontalAlignment="Center">
                             <TextBlock Text="🛸" FontSize="22"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="#7C3AED"/>
                         </Border>
-                        <TextBlock Text="Cohetes" Foreground="#E2E8F0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Especificaciones técnicas" Foreground="#4A6080" FontSize="11" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Explorar ›" Foreground="#7C3AED" FontSize="11" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <TextBlock Text="Cohetes"
+                                   Foreground="#E2E8F0"
+                                   FontSize="15"
+                                   FontWeight="Normal"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Especificaciones técnicas"
+                                   Foreground="#4A6080"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"/>
+                        <!-- "Explorar ›" aparece animado al hacer hover -->
+                        <TextBlock Text="Explorar ›"
+                                   Foreground="#7C3AED"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,0">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Opacity" Value="0"/>
@@ -244,18 +316,33 @@
                     </StackPanel>
                 </Button>
 
+                <!-- ==================== TARJETA MAPA ==================== -->
                 <Button Style="{StaticResource CardStyle}"
                         Command="{Binding GoToMapCommand}">
                     <StackPanel HorizontalAlignment="Center">
+                        <!-- Ícono con fondo verde -->
                         <Border Style="{StaticResource IconWrapGreen}" HorizontalAlignment="Center">
                             <TextBlock Text="🌍" FontSize="22"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="#10B981"/>
                         </Border>
-                        <TextBlock Text="Mapa" Foreground="#E2E8F0" FontSize="15" FontWeight="Normal" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Sitios de lanzamiento" Foreground="#4A6080" FontSize="11" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Explorar ›" Foreground="#10B981" FontSize="11" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <TextBlock Text="Mapa"
+                                   Foreground="#E2E8F0"
+                                   FontSize="15"
+                                   FontWeight="Normal"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Sitios de lanzamiento"
+                                   Foreground="#4A6080"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"/>
+                        <!-- "Explorar ›" aparece animado al hacer hover -->
+                        <TextBlock Text="Explorar ›"
+                                   Foreground="#10B981"
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,0">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Opacity" Value="0"/>

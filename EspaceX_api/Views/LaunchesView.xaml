@@ -9,6 +9,17 @@
             <Border DockPanel.Dock="Top" Background="#333333" Padding="15"
                     BorderThickness="0,0,0,1" BorderBrush="#0066cc">
                 <WrapPanel Orientation="Horizontal">
+
+                    <!-- Boton volver al Home -->
+                    <Button Command="{Binding GoHomeCommand}"
+                            Background="Transparent" Foreground="#8aafc8"
+                            BorderBrush="#555577" BorderThickness="1"
+                            Padding="12,7" FontWeight="Bold" Margin="0,0,12,0"
+                            Cursor="Hand">
+                        &#x2190; Volver
+                    </Button>
+                    <Separator Background="#555555" Width="1" Margin="0,0,12,0"/>
+
                     <Button Command="{Binding LoadLaunchesCommand}"
                             Background="#0066cc" Foreground="White"
                             Padding="15,8" FontWeight="Bold" Margin="0,0,8,0">
@@ -20,19 +31,25 @@
                         Actualizar
                     </Button>
                     <Separator Background="#555555" Width="1" Margin="0,0,15,0"/>
+
+                    <!-- Filtro de busqueda por texto -->
                     <TextBlock Text="Busqueda:" VerticalAlignment="Center"
                                Foreground="#aaaaaa" Margin="0,0,8,0"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Background="#444444" Foreground="White"
                              CaretBrush="White" Padding="8,6"
                              Width="250" Margin="0,0,15,0" BorderBrush="#555555"/>
+
+                    <!-- Filtro de estado -->
                     <TextBlock Text="Estado:" VerticalAlignment="Center"
                                Foreground="#aaaaaa" Margin="0,0,8,0"/>
                     <ComboBox SelectedItem="{Binding StatusFilter}"
                               Background="#444444" Foreground="White" Width="150">
                         <ComboBox.Resources>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#444444"/>
-                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0066cc"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}"
+                                             Color="#444444"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                                             Color="#0066cc"/>
                         </ComboBox.Resources>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Todos</System:String>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Proximo</System:String>
@@ -42,14 +59,15 @@
                 </WrapPanel>
             </Border>
 
-            <!-- Indicador de error: visible cuando ErrorMessage tiene contenido -->
+            <!-- Mensaje de error: visible solo cuando ErrorMessage tiene contenido -->
             <Border DockPanel.Dock="Bottom" Background="#cc3333" Padding="12"
-                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                    Visibility="{Binding ErrorMessage,
+                                 Converter={StaticResource StringToVisibilityConverter}}">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="White"
                            TextWrapping="Wrap" FontWeight="SemiBold"/>
             </Border>
 
-            <!-- Indicador de carga -->
+            <!-- Indicador de carga: visible solo cuando IsLoading es true -->
             <Border DockPanel.Dock="Bottom" Background="#333333" Padding="10">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -65,7 +83,7 @@
                            HorizontalAlignment="Center" FontWeight="Bold"/>
             </Border>
 
-            <!-- DataGrid principal -->
+            <!-- Tabla principal de lanzamientos -->
             <DataGrid ItemsSource="{Binding FilteredLaunches}"
                       AutoGenerateColumns="False"
                       Background="#2a2a2a" Foreground="White"
@@ -73,6 +91,7 @@
                       HorizontalGridLinesBrush="#3a3a3a"
                       RowHeaderWidth="0" CanUserAddRows="False"
                       IsReadOnly="True" SelectionMode="Single" BorderThickness="0">
+
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#222222"/>
@@ -83,6 +102,7 @@
                         <Setter Property="BorderBrush" Value="#444444"/>
                     </Style>
                 </DataGrid.ColumnHeaderStyle>
+
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Setter Property="Background" Value="#2a2a2a"/>
@@ -97,6 +117,7 @@
                         </Style.Triggers>
                     </Style>
                 </DataGrid.RowStyle>
+
                 <DataGrid.CellStyle>
                     <Style TargetType="DataGridCell">
                         <Setter Property="Padding" Value="10,6"/>
@@ -104,9 +125,14 @@
                         <Setter Property="Foreground" Value="White"/>
                     </Style>
                 </DataGrid.CellStyle>
+
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="230"/>
-                    <DataGridTextColumn Header="Fecha" Binding="{Binding DateFormatted}" Width="140"/>
+                    <DataGridTextColumn Header="Nombre"
+                                        Binding="{Binding Name}" Width="230"/>
+                    <DataGridTextColumn Header="Fecha"
+                                        Binding="{Binding DateFormatted}" Width="140"/>
+
+                    <!-- Columna Estado con badge de color segun valor -->
                     <DataGridTemplateColumn Header="Estado" Width="110">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -134,7 +160,9 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Detalles" Binding="{Binding Details}" Width="*">
+
+                    <DataGridTextColumn Header="Detalles"
+                                        Binding="{Binding Details}" Width="*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>

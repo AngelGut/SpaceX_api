@@ -8,33 +8,31 @@ using System.Threading.Tasks;
 
 namespace EspaceX_api.ViewModels
 {
-    /// <summary>
-    /// ViewModel para la vista de cohetes.
-    /// Responsabilidad única: gestionar estado y lógica de cohetes.
-    /// (Single Responsibility Principle)
-    /// 
-    /// Asignado a: PERSONA 3
-    /// </summary>
     public partial class RocketsViewModel : ObservableObject
     {
         private readonly ISpaceXApiService _apiService;
 
-        [ObservableProperty]
-        private ObservableCollection<RocketModel> rockets = new();
+        // Accion para volver al Home.
+        // Se asigna desde MainViewModel via SetNavigateToHome()
+        // porque DI construye este VM antes que MainViewModel.
+        private Action _navigateToHome;
 
-        [ObservableProperty]
-        private RocketModel selectedRocket;
-
-        [ObservableProperty]
-        private bool isLoading = false;
-
-        [ObservableProperty]
-        private string errorMessage = string.Empty;
+        [ObservableProperty] private ObservableCollection<RocketModel> rockets = new();
+        [ObservableProperty] private RocketModel selectedRocket;
+        [ObservableProperty] private bool isLoading = false;
+        [ObservableProperty] private string errorMessage = string.Empty;
 
         public RocketsViewModel(ISpaceXApiService apiService)
         {
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
+
+        // Llamado desde MainViewModel despues de que DI construye este VM
+        public void SetNavigateToHome(Action action) => _navigateToHome = action;
+
+        // Comando que ejecuta el boton "Volver" en RocketsView.xaml
+        [RelayCommand]
+        public void GoHome() => _navigateToHome?.Invoke();
 
         [RelayCommand]
         public async Task LoadRockets()

@@ -4,15 +4,6 @@ using System;
 
 namespace EspaceX_api.ViewModels
 {
-    /// <summary>
-    /// ViewModel principal que coordina la navegacion entre vistas.
-    /// Responsabilidad unica: gestionar la vista activa (CurrentViewModel).
-    ///
-    /// Construye HomeViewModel pasandole las acciones de navegacion como lambdas,
-    /// rompiendo la dependencia circular que existia cuando HomeViewModel
-    /// recibia MainViewModel directamente.
-    /// (Single Responsibility + Dependency Inversion Principle)
-    /// </summary>
     public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
@@ -32,13 +23,19 @@ namespace EspaceX_api.ViewModels
             _rocketsViewModel = rocketsViewModel ?? throw new ArgumentNullException(nameof(rocketsViewModel));
             _mapViewModel = mapViewModel ?? throw new ArgumentNullException(nameof(mapViewModel));
 
-            // HomeViewModel recibe lambdas, no una referencia a MainViewModel.
-            // Esto rompe la dependencia circular.
+            // HomeViewModel recibe lambdas en lugar de MainViewModel directamente.
+            // Esto evita la dependencia circular. (Dependency Inversion Principle)
             _homeViewModel = new HomeViewModel(
                 navigateToLaunches: NavigateToLaunches,
                 navigateToRockets: NavigateToRockets,
                 navigateToMap: NavigateToMap
             );
+
+            // Inyectamos la accion "Volver al Home" en cada ViewModel secundario.
+            // Se hace aqui porque DI construyo esos VMs antes de que existiera MainViewModel.
+            _launchesViewModel.SetNavigateToHome(NavigateToHome);
+            _rocketsViewModel.SetNavigateToHome(NavigateToHome);
+            _mapViewModel.SetNavigateToHome(NavigateToHome);
 
             CurrentViewModel = _homeViewModel;
         }

@@ -2,21 +2,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using EspaceX_api.ViewModels;
-using System;
-
 namespace EspaceX_api.ViewModels
 {
+    /// <summary>
+    /// ViewModel principal que coordina la navegacion entre vistas.
+    /// Responsabilidad unica: gestionar la vista activa (CurrentViewModel).
+    ///
+    /// Construye HomeViewModel pasandole las acciones de navegacion como lambdas,
+    /// rompiendo la dependencia circular que existia cuando HomeViewModel
+    /// recibia MainViewModel directamente.
+    /// (Single Responsibility + Dependency Inversion Principle)
+    /// </summary>
     public partial class MainViewModel : ObservableObject
     {
-        /// <summary>
-        /// ViewModel principal que coordina navegación entre vistas.
-        /// Responsabilidad única: gestionar la vista activa.
-        /// (Single Responsibility Principle)
-        /// </summary>
-        
         [ObservableProperty]
         private ObservableObject currentViewModel;
 
@@ -26,15 +24,21 @@ namespace EspaceX_api.ViewModels
         private readonly MapViewModel _mapViewModel;
 
         public MainViewModel(
-            HomeViewModel homeViewModel,
             LaunchesViewModel launchesViewModel,
             RocketsViewModel rocketsViewModel,
             MapViewModel mapViewModel)
         {
-            _homeViewModel = homeViewModel ?? throw new ArgumentNullException(nameof(homeViewModel));
             _launchesViewModel = launchesViewModel ?? throw new ArgumentNullException(nameof(launchesViewModel));
             _rocketsViewModel = rocketsViewModel ?? throw new ArgumentNullException(nameof(rocketsViewModel));
             _mapViewModel = mapViewModel ?? throw new ArgumentNullException(nameof(mapViewModel));
+
+            // HomeViewModel recibe lambdas, no una referencia a MainViewModel.
+            // Esto rompe la dependencia circular.
+            _homeViewModel = new HomeViewModel(
+                navigateToLaunches: NavigateToLaunches,
+                navigateToRockets: NavigateToRockets,
+                navigateToMap: NavigateToMap
+            );
 
             CurrentViewModel = _homeViewModel;
         }

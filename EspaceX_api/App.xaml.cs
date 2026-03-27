@@ -1,9 +1,11 @@
-using Microsoft.Extensions.DependencyInjection;
 using EspaceX_api.Services;
 using EspaceX_api.ViewModels;
 using EspaceX_api.Views;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Globalization;
 using System.Windows;
+using System.Windows.Data;
 
 namespace EspaceX_api
 {
@@ -19,23 +21,24 @@ namespace EspaceX_api
         }
 
         /// <summary>
-        /// Configura la inyección de dependencias.
-        /// Responsabilidad única: registrar servicios y ViewModels.
+        /// Configura la inyeccion de dependencias.
+        /// Nota: HomeViewModel NO se registra aqui porque MainViewModel
+        /// lo construye internamente pasandole lambdas de navegacion,
+        /// evitando la dependencia circular.
         /// (Dependency Inversion Principle)
         /// </summary>
         private void ConfigureServices(IServiceCollection services)
         {
-            // Registrar el servicio (interfaz → implementación)
+            // Servicio (interfaz → implementacion)
             services.AddSingleton<ISpaceXApiService, SpaceXApiService>();
 
-            // Registrar ViewModels
-            services.AddSingleton<HomeViewModel>();
+            // ViewModels (HomeViewModel lo crea MainViewModel internamente)
             services.AddSingleton<LaunchesViewModel>();
             services.AddSingleton<RocketsViewModel>();
             services.AddSingleton<MapViewModel>();
             services.AddSingleton<MainViewModel>();
 
-            // Registrar MainWindow
+            // Ventana principal
             services.AddSingleton<MainWindow>();
         }
 
@@ -50,6 +53,25 @@ namespace EspaceX_api
         {
             _serviceProvider?.Dispose();
             base.OnExit(e);
+        }
+    }
+
+    /// <summary>
+    /// Convierte un string vacio a Visibility.Collapsed.
+    /// Usado en las Views para mostrar/ocultar mensajes de error.
+    /// </summary>
+    public class StringToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return string.IsNullOrWhiteSpace(value?.ToString())
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

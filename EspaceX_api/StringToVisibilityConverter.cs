@@ -10,7 +10,7 @@ namespace EspaceX_api
     /// Convierte un string con contenido a Visibility.Visible.
     /// Usado en App.xaml como recurso global.
     /// </summary>
-    public class StringToVisibilityConverter : IValueConverter
+   public class StringToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

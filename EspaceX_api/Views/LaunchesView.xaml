@@ -12,53 +12,39 @@
                     <Button Command="{Binding LoadLaunchesCommand}"
                             Background="#0066cc" Foreground="White"
                             Padding="15,8" FontWeight="Bold" Margin="0,0,8,0">
-                        📥 Cargar
+                        Cargar
                     </Button>
                     <Button Command="{Binding RefreshCommand}"
                             Background="#004499" Foreground="White"
                             Padding="15,8" FontWeight="Bold" Margin="0,0,15,0">
-                        🔄 Actualizar
+                        Actualizar
                     </Button>
-
                     <Separator Background="#555555" Width="1" Margin="0,0,15,0"/>
-
-                    <TextBlock Text="Búsqueda:" VerticalAlignment="Center"
+                    <TextBlock Text="Busqueda:" VerticalAlignment="Center"
                                Foreground="#aaaaaa" Margin="0,0,8,0"/>
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Background="#444444" Foreground="White"
                              CaretBrush="White" Padding="8,6"
-                             Width="250" Margin="0,0,15,0"
-                             BorderBrush="#555555"/>
-
+                             Width="250" Margin="0,0,15,0" BorderBrush="#555555"/>
                     <TextBlock Text="Estado:" VerticalAlignment="Center"
                                Foreground="#aaaaaa" Margin="0,0,8,0"/>
                     <ComboBox SelectedItem="{Binding StatusFilter}"
-                              Background="#444444" Foreground="White"
-                              Width="150">
+                              Background="#444444" Foreground="White" Width="150">
                         <ComboBox.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#444444"/>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0066cc"/>
                         </ComboBox.Resources>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Todos</System:String>
-                        <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Próximo</System:String>
+                        <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Proximo</System:String>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Exitoso</System:String>
                         <System:String xmlns:System="clr-namespace:System;assembly=mscorlib">Fallido</System:String>
                     </ComboBox>
                 </WrapPanel>
             </Border>
 
-            <!-- Indicador de error -->
-            <Border DockPanel.Dock="Bottom" Background="#cc3333" Padding="12">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding ErrorMessage}" Value="">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
+            <!-- Indicador de error: visible cuando ErrorMessage tiene contenido -->
+            <Border DockPanel.Dock="Bottom" Background="#cc3333" Padding="12"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="White"
                            TextWrapping="Wrap" FontWeight="SemiBold"/>
             </Border>
@@ -75,23 +61,18 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <TextBlock Text="⏳ Cargando lanzamientos..." Foreground="#0099ff"
+                <TextBlock Text="Cargando lanzamientos..." Foreground="#0099ff"
                            HorizontalAlignment="Center" FontWeight="Bold"/>
             </Border>
 
             <!-- DataGrid principal -->
             <DataGrid ItemsSource="{Binding FilteredLaunches}"
                       AutoGenerateColumns="False"
-                      Background="#2a2a2a"
-                      Foreground="White"
+                      Background="#2a2a2a" Foreground="White"
                       GridLinesVisibility="Horizontal"
                       HorizontalGridLinesBrush="#3a3a3a"
-                      RowHeaderWidth="0"
-                      CanUserAddRows="False"
-                      IsReadOnly="True"
-                      SelectionMode="Single"
-                      BorderThickness="0">
-
+                      RowHeaderWidth="0" CanUserAddRows="False"
+                      IsReadOnly="True" SelectionMode="Single" BorderThickness="0">
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#222222"/>
@@ -102,7 +83,6 @@
                         <Setter Property="BorderBrush" Value="#444444"/>
                     </Style>
                 </DataGrid.ColumnHeaderStyle>
-
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Setter Property="Background" Value="#2a2a2a"/>
@@ -117,7 +97,6 @@
                         </Style.Triggers>
                     </Style>
                 </DataGrid.RowStyle>
-
                 <DataGrid.CellStyle>
                     <Style TargetType="DataGridCell">
                         <Setter Property="Padding" Value="10,6"/>
@@ -125,19 +104,14 @@
                         <Setter Property="Foreground" Value="White"/>
                     </Style>
                 </DataGrid.CellStyle>
-
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Nombre"
-                                        Binding="{Binding Name}"
-                                        Width="230"/>
-                    <DataGridTextColumn Header="Fecha"
-                                        Binding="{Binding DateFormatted}"
-                                        Width="140"/>
+                    <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="230"/>
+                    <DataGridTextColumn Header="Fecha" Binding="{Binding DateFormatted}" Width="140"/>
                     <DataGridTemplateColumn Header="Estado" Width="110">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="4" Padding="6,3" HorizontalAlignment="Left"
-                                        Margin="5,2">
+                                <Border CornerRadius="4" Padding="6,3"
+                                        HorizontalAlignment="Left" Margin="5,2">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="#555555"/>
@@ -148,7 +122,7 @@
                                                 <DataTrigger Binding="{Binding Status}" Value="Fallido">
                                                     <Setter Property="Background" Value="#7a1a1a"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status}" Value="Próximo">
+                                                <DataTrigger Binding="{Binding Status}" Value="Proximo">
                                                     <Setter Property="Background" Value="#1a4a7a"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -160,9 +134,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Detalles"
-                                        Binding="{Binding Details}"
-                                        Width="*">
+                    <DataGridTextColumn Header="Detalles" Binding="{Binding Details}" Width="*">
                         <DataGridTextColumn.ElementStyle>
                             <Style TargetType="TextBlock">
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>

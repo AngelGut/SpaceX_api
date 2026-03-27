@@ -1,12 +1,158 @@
-<UserControl x:Class="EspaceX_api.HomeView"
+<UserControl x:Class="EspaceX_api.Views.HomeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#1a1a1a">
+             Background="#020810">
+    <!--
+        HomeView.xaml — Vista principal del Home
+        Responsabilidad: presentación de menú de navegación con estilo espacial.
+        DataContext: HomeViewModel (asignado por constructor DI o DataTemplate).
+        Animaciones de cohetes definidas en UserControl.Triggers.
+        Animaciones de estrellas generadas en code-behind (HomeView.xaml.cs).
+    -->
+
+    <UserControl.Resources>
+
+        <!-- Estilo base para las 3 tarjetas de navegación -->
+        <Style x:Key="CardStyle" TargetType="Button">
+            <Setter Property="Width" Value="185"/>
+            <Setter Property="Height" Value="185"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#0A1628"/>
+            <Setter Property="BorderBrush" Value="#1A3050"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <!-- Contenedor con bordes redondeados -->
+                        <Border x:Name="CardBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Hover: cambiar color del borde -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CardBorder" Property="BorderBrush" Value="#2A4870"/>
+                            </Trigger>
+                            <!-- Click: oscurecer fondo -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="CardBorder" Property="Background" Value="#0D1F3C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Contenedor de ícono con acento cian — tarjeta Lanzamientos -->
+        <Style x:Key="IconWrapCyan" TargetType="Border">
+            <Setter Property="Width" Value="52"/>
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="#0D2235"/>
+            <Setter Property="BorderBrush" Value="#00D4FF33"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+        <!-- Contenedor de ícono con acento morado — tarjeta Cohetes -->
+        <Style x:Key="IconWrapPurple" TargetType="Border">
+            <Setter Property="Width" Value="52"/>
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="#150D2E"/>
+            <Setter Property="BorderBrush" Value="#7C3AED33"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+        <!-- Contenedor de ícono con acento verde — tarjeta Mapa -->
+        <Style x:Key="IconWrapGreen" TargetType="Border">
+            <Setter Property="Width" Value="52"/>
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="#0A2018"/>
+            <Setter Property="BorderBrush" Value="#10B98133"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!--
+        Animaciones XAML de cohetes.
+        Se activan al cargar la vista (RoutedEvent="Loaded").
+        Rocket1: cohete 🚀 sube cada 8 segundos desde abajo.
+        Rocket2: nave 🛸 sube cada 11 segundos con delay de 4 segundos.
+    -->
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <!-- Rocket1: movimiento vertical hacia arriba -->
+                    <DoubleAnimation Storyboard.TargetName="Rocket1"
+                                     Storyboard.TargetProperty="(Canvas.Top)"
+                                     From="700" To="-60"
+                                     Duration="0:0:8"
+                                     RepeatBehavior="Forever"/>
+                    <!-- Rocket1: fade in/out durante el recorrido -->
+                    <DoubleAnimation Storyboard.TargetName="Rocket1"
+                                     Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1"
+                                     Duration="0:0:0.5"
+                                     AutoReverse="True"
+                                     RepeatBehavior="Forever"/>
+                    <!-- Rocket2: movimiento vertical con delay de 4 segundos -->
+                    <DoubleAnimation Storyboard.TargetName="Rocket2"
+                                     Storyboard.TargetProperty="(Canvas.Top)"
+                                     From="700" To="-60"
+                                     Duration="0:0:11"
+                                     BeginTime="0:0:4"
+                                     RepeatBehavior="Forever"/>
+                    <!-- Rocket2: fade in/out con mismo delay -->
+                    <DoubleAnimation Storyboard.TargetName="Rocket2"
+                                     Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1"
+                                     Duration="0:0:0.5"
+                                     BeginTime="0:0:4"
+                                     AutoReverse="True"
+                                     RepeatBehavior="Forever"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
     <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="{Binding Title}" 
-                       FontSize="32" 
-                       FontWeight="Bold" 
+        <!-- Canvas del fondo: las estrellas se generan aquí desde el code-behind -->
+        <Canvas x:Name="StarsCanvas"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"/>
+
+        <!-- Canvas de cohetes animados — separado del StarsCanvas para evitar conflictos -->
+        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <!-- Cohete principal: sube por la izquierda inclinado -->
+            <TextBlock x:Name="Rocket1"
+                       Text="🚀"
+                       FontSize="28"
+                       Foreground="White"
+                       Opacity="0"
+                       Canvas.Left="120"
+                       Canvas.Top="700"
+                       RenderTransformOrigin="0.5,0.5">
+                <TextBlock.RenderTransform>
+                    <RotateTransform Angle="-15"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <!-- Nave secundaria: sube por la derecha con menor inclinación -->
+            <TextBlock x:Name="Rocket2"
+                       Text="🛸"
+                       FontSize="20"
                        Foreground="White"
                        TextAlignment="Center"/>
             <TextBlock Text="{Binding Subtitle}" 

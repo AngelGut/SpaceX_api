@@ -154,223 +154,76 @@
                        Text="🛸"
                        FontSize="20"
                        Foreground="White"
-                       Opacity="0"
-                       Canvas.Left="650"
-                       Canvas.Top="700"
-                       RenderTransformOrigin="0.5,0.5">
-                <TextBlock.RenderTransform>
-                    <RotateTransform Angle="-10"/>
-                </TextBlock.RenderTransform>
-            </TextBlock>
+                       TextAlignment="Center"/>
+            <TextBlock Text="{Binding Subtitle}" 
+                       FontSize="16" 
+                       Foreground="#cccccc"
+                       TextAlignment="Center"
+                       Margin="0,10,0,30"/>
 
-        </Canvas>
+            <Border Height="2" Background="#0066cc" Margin="0,0,0,30"/>
 
-        <!-- Contenido principal centrado verticalmente -->
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-
-            <!-- Badge decorativo superior -->
-            <Border HorizontalAlignment="Center"
-                    CornerRadius="12"
-                    Background="#00D4FF0D"
-                    BorderBrush="#00D4FF44"
-                    BorderThickness="1"
-                    Padding="14,4"
-                    Margin="0,0,0,20">
-                <TextBlock Text="MISSION CONTROL"
-                           Foreground="#00D4FF"
-                           FontSize="10"
-                           FontWeight="Bold"/>
-            </Border>
-
-            <!-- Título bicolor: "SpaceX" blanco + título del ViewModel en cian -->
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,8">
-                <TextBlock Text="SpaceX "
-                           Foreground="White"
-                           FontSize="32"
-                           FontWeight="Bold"/>
-                <!-- Title viene del HomeViewModel via binding -->
-                <TextBlock Text="{Binding Title}"
-                           Foreground="#00D4FF"
-                           FontSize="32"
-                           FontWeight="Bold"/>
-            </StackPanel>
-
-            <!-- Subtítulo desde el HomeViewModel via binding -->
-            <TextBlock Text="{Binding Subtitle}"
-                       Foreground="#4A6080"
-                       FontSize="13"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,48"/>
-
-            <!-- Fila de tarjetas de navegación -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
-                <!-- ==================== TARJETA LANZAMIENTOS ==================== -->
-                <Button Style="{StaticResource CardStyle}"
-                        Command="{Binding GoToLaunchesCommand}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <!-- Ícono con fondo cian -->
-                        <Border Style="{StaticResource IconWrapCyan}" HorizontalAlignment="Center">
-                            <TextBlock Text="🚀" FontSize="22"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="#00D4FF"/>
-                        </Border>
-                        <TextBlock Text="Lanzamientos"
-                                   Foreground="#E2E8F0"
-                                   FontSize="15"
-                                   FontWeight="Normal"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock Text="Historial completo"
-                                   Foreground="#4A6080"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"/>
-                        <!-- "Explorar ›" aparece animado al hacer hover -->
-                        <TextBlock Text="Explorar ›"
-                                   Foreground="#00D4FF"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,10,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Opacity" Value="0"/>
-                                    <Style.Triggers>
-                                        <!-- Detecta hover del Button padre via RelativeSource -->
-                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                            <DataTrigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.ExitActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-
-                <!-- ==================== TARJETA COHETES ==================== -->
-                <Button Style="{StaticResource CardStyle}"
-                        Command="{Binding GoToRocketsCommand}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <!-- Ícono con fondo morado -->
-                        <Border Style="{StaticResource IconWrapPurple}" HorizontalAlignment="Center">
-                            <TextBlock Text="🛸" FontSize="22"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="#7C3AED"/>
-                        </Border>
-                        <TextBlock Text="Cohetes"
-                                   Foreground="#E2E8F0"
-                                   FontSize="15"
-                                   FontWeight="Normal"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock Text="Especificaciones técnicas"
-                                   Foreground="#4A6080"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"/>
-                        <!-- "Explorar ›" aparece animado al hacer hover -->
-                        <TextBlock Text="Explorar ›"
-                                   Foreground="#7C3AED"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,10,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Opacity" Value="0"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                            <DataTrigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.ExitActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-
-                <!-- ==================== TARJETA MAPA ==================== -->
-                <Button Style="{StaticResource CardStyle}"
-                        Command="{Binding GoToMapCommand}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <!-- Ícono con fondo verde -->
-                        <Border Style="{StaticResource IconWrapGreen}" HorizontalAlignment="Center">
-                            <TextBlock Text="🌍" FontSize="22"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="#10B981"/>
-                        </Border>
-                        <TextBlock Text="Mapa"
-                                   Foreground="#E2E8F0"
-                                   FontSize="15"
-                                   FontWeight="Normal"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock Text="Sitios de lanzamiento"
-                                   Foreground="#4A6080"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"/>
-                        <!-- "Explorar ›" aparece animado al hacer hover -->
-                        <TextBlock Text="Explorar ›"
-                                   Foreground="#10B981"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,10,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Opacity" Value="0"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                            <DataTrigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.ExitActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Button>
-
-            </StackPanel>
+            <Grid Width="600">
+                <StackPanel>
+                    <!-- Botón Lanzamientos -->
+                    <Border Background="#333333" Padding="20" CornerRadius="5" Cursor="Hand" Margin="0,0,0,15">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" 
+                                         Command="{Binding DataContext.NavigateToLaunchesCommand, 
+                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                        </Border.InputBindings>
+                        <StackPanel>
+                            <TextBlock Text="Lanzamientos" 
+                                       FontSize="20" 
+                                       FontWeight="Bold" 
+                                       Foreground="White"/>
+                            <TextBlock Text="Consulta el historial completo de lanzamientos de SpaceX" 
+                                       FontSize="12" 
+                                       Foreground="#cccccc"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Botón Cohetes -->
+                    <Border Background="#333333" Padding="20" CornerRadius="5" Cursor="Hand" Margin="0,0,0,15">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" 
+                                         Command="{Binding DataContext.NavigateToRocketsCommand, 
+                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                        </Border.InputBindings>
+                        <StackPanel>
+                            <TextBlock Text="Cohetes" 
+                                       FontSize="20" 
+                                       FontWeight="Bold" 
+                                       Foreground="White"/>
+                            <TextBlock Text="Conoce las especificaciones técnicas de los cohetes" 
+                                       FontSize="12" 
+                                       Foreground="#cccccc"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Botón Mapa -->
+                    <Border Background="#333333" Padding="20" CornerRadius="5" Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" 
+                                         Command="{Binding DataContext.NavigateToMapCommand, 
+                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                        </Border.InputBindings>
+                        <StackPanel>
+                            <TextBlock Text="Mapa de Lanzamientos" 
+                                       FontSize="20" 
+                                       FontWeight="Bold" 
+                                       Foreground="White"/>
+                            <TextBlock Text="Visualiza los sitios de lanzamiento en un mapa interactivo" 
+                                       FontSize="12" 
+                                       Foreground="#cccccc"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,7 +1,8 @@
-<Window x:Class="EspaceX_api.MainWindow"
+<Window x:Class="EspaceX_api.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="clr-namespace:EspaceX_api"
+        xmlns:vm="clr-namespace:EspaceX_api.ViewModels"
+        xmlns:views="clr-namespace:EspaceX_api.Views"
         Title="SpaceX Explorer" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen"
         Background="#1a1a1a">
@@ -9,39 +10,30 @@
         <DockPanel>
             <!-- Header -->
             <Border DockPanel.Dock="Top" Background="#0066cc" Height="60" Padding="20,0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="20">
-                    <TextBlock Text="🚀 SpaceX Explorer" 
-                               FontSize="28" 
-                               FontWeight="Bold" 
-                               Foreground="White"/>
-                    <TextBlock Text="| Datos en vivo desde SpaceX API" 
-                               FontSize="14" 
-                               Foreground="#cccccc"
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="SpaceX Explorer"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="White" Margin="0,0,20,0"/>
+                    <TextBlock Text="| Datos en vivo desde SpaceX API"
+                               FontSize="14" Foreground="#cccccc"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- ContentControl - Aquí va la vista actual -->
+            <!-- ContentControl: cambia la vista segun el ViewModel activo -->
             <ContentControl Content="{Binding CurrentViewModel}">
                 <ContentControl.Resources>
-                    <!-- DataTemplate para HomeViewModel → HomeView -->
-                    <DataTemplate DataType="{x:Type local:HomeViewModel}">
-                        <local:HomeView />
+                    <DataTemplate DataType="{x:Type vm:HomeViewModel}">
+                        <views:HomeView />
                     </DataTemplate>
-
-                    <!-- DataTemplate para LaunchesViewModel → LaunchesView -->
-                    <DataTemplate DataType="{x:Type local:LaunchesViewModel}">
-                        <local:LaunchesView />
+                    <DataTemplate DataType="{x:Type vm:LaunchesViewModel}">
+                        <views:LaunchesView />
                     </DataTemplate>
-
-                    <!-- DataTemplate para RocketsViewModel → RocketsView -->
-                    <DataTemplate DataType="{x:Type local:RocketsViewModel}">
-                        <local:RocketsView />
+                    <DataTemplate DataType="{x:Type vm:RocketsViewModel}">
+                        <views:RocketsView />
                     </DataTemplate>
-
-                    <!-- DataTemplate para MapViewModel → MapView -->
-                    <DataTemplate DataType="{x:Type local:MapViewModel}">
-                        <local:MapView />
+                    <DataTemplate DataType="{x:Type vm:MapViewModel}">
+                        <views:MapView />
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

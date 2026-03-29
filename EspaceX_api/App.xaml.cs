@@ -1,6 +1,7 @@
-using Microsoft.Extensions.DependencyInjection;
 using EspaceX_api.Services;
 using EspaceX_api.ViewModels;
+using EspaceX_api.Views;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Globalization;
 using System.Windows;
@@ -20,42 +21,34 @@ namespace EspaceX_api
         }
 
         /// <summary>
-        /// Configura la inyección de dependencias.
-        /// Responsabilidad única: registrar servicios y ViewModels.
+        /// Configura la inyeccion de dependencias.
+        /// Nota: HomeViewModel NO se registra aqui porque MainViewModel
+        /// lo construye internamente pasandole lambdas de navegacion,
+        /// evitando la dependencia circular.
         /// (Dependency Inversion Principle)
         /// </summary>
         private void ConfigureServices(IServiceCollection services)
         {
-            // Registrar el servicio (interfaz → implementación)
+            // Servicio (interfaz → implementacion)
             services.AddSingleton<ISpaceXApiService, SpaceXApiService>();
 
-            // Registrar ViewModels
-            services.AddSingleton<HomeViewModel>();
+            // ViewModels (HomeViewModel lo crea MainViewModel internamente)
             services.AddSingleton<LaunchesViewModel>();
             services.AddSingleton<RocketsViewModel>();
             services.AddSingleton<MapViewModel>();
             services.AddSingleton<MainViewModel>();
 
-            // Registrar MainWindow
+            // Ventana principal
             services.AddSingleton<MainWindow>();
         }
 
-        /// <summary>
-        /// Se ejecuta al iniciar la aplicación.
-        /// El contenedor DI inyecta automáticamente todas las dependencias.
-        /// </summary>
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
 
-        /// <summary>
-        /// Se ejecuta al cerrar la aplicación.
-        /// Limpia recursos del contenedor DI.
-        /// </summary>
         protected override void OnExit(ExitEventArgs e)
         {
             _serviceProvider?.Dispose();
@@ -64,8 +57,8 @@ namespace EspaceX_api
     }
 
     /// <summary>
-    /// Convertidor IValueConverter para visibilidad basada en string.
-    /// Convierte un string vacío a Visibility.Collapsed.
+    /// Convierte un string vacio a Visibility.Collapsed.
+    /// Usado en las Views para mostrar/ocultar mensajes de error.
     /// </summary>
     public class StringToVisibilityConverter : IValueConverter
     {

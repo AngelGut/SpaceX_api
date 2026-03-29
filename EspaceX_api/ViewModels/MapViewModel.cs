@@ -9,110 +9,93 @@ using System.Threading.Tasks;
 
 namespace EspaceX_api.ViewModels
 {
-    /// <summary>
-    /// Modelo para representar un punto en el mapa (sitio de lanzamiento).
-    /// </summary>
-    public class MapPointModel
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
-        public int LaunchCount { get; set; }
-        public int SuccessCount { get; set; }
-
-        public string Info => $"{Name}\n{LaunchCount} lanzamientos ({SuccessCount} exitosos)";
-    }
-
-    /// <summary>
-    /// ViewModel para la vista de mapa.
-    /// Responsabilidades: gestionar sitios de lanzamiento y proyección de coordenadas.
-    /// (Single Responsibility Principle)
-    /// 
-    /// Asignado a: PERSONA 4
-    /// </summary>
     public partial class MapViewModel : ObservableObject
     {
         private readonly ISpaceXApiService _apiService;
 
-        [ObservableProperty]
-        private ObservableCollection<MapPointModel> launchSites = new();
+        // Accion para volver al Home.
+        // Se asigna desde MainViewModel via SetNavigateToHome()
+        // porque DI construye este VM antes que MainViewModel.
+        private Action _navigateToHome;
 
-        [ObservableProperty]
-        private ObservableCollection<LaunchModel> selectedSiteLaunches = new();
+        private const double ZoomStep = 0.2;
+        private const double ZoomMin = 0.5;
+        private const double ZoomMax = 5.0;
 
-        [ObservableProperty]
-        private MapPointModel selectedSite;
+        private bool _isDragging = false;
+        private double _lastDragX = 0;
+        private double _lastDragY = 0;
 
-        [ObservableProperty]
-        private bool isLoading = false;
-
-        [ObservableProperty]
-        private string errorMessage = string.Empty;
-
-        [ObservableProperty]
-        private double zoomLevel = 1.0;
-
-        [ObservableProperty]
-        private double panX = 0;
-
-        [ObservableProperty]
-        private double panY = 0;
+        [ObservableProperty] private ObservableCollection<MapPointModel> launchSites = new();
+        [ObservableProperty] private MapPointModel? selectedSite;
+        [ObservableProperty] private ObservableCollection<LaunchModel> selectedSiteLaunches = new();
+        [ObservableProperty] private string errorMessage = string.Empty;
+        [ObservableProperty] private bool isLoading;
+        [ObservableProperty] private double zoomLevel = 1.0;
+        [ObservableProperty] private double panX = 0;
+        [ObservableProperty] private double panY = 0;
 
         public MapViewModel(ISpaceXApiService apiService)
         {
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
-        [RelayCommand]
-        public async Task LoadLaunchSites()
-        {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
+        // Llamado desde MainViewModel despues de que DI construye este VM
+        public void SetNavigateToHome(Action action) => _navigateToHome = action;
 
+        // Comando que ejecuta el boton "Volver" en MapView.xaml
+        [RelayCommand]
+        public void GoHome() => _navigateToHome?.Invoke();
+
+        // Se dispara automaticamente cuando el usuario selecciona un sitio en la lista
+        partial void OnSelectedSiteChanged(MapPointModel? value)
+        {
+            SelectedSiteLaunches.Clear();
+            if (value == null) return;
+            _ = LoadLaunchesForSiteAsync(value.Id);
+        }
+
+        // Carga todos los launchpads desde la API y los convierte en puntos del mapa
+        [RelayCommand]
+        private async Task LoadLaunchSites()
+        {
             try
             {
+                IsLoading = true;
+                ErrorMessage = string.Empty;
+                LaunchSites.Clear();
+
                 var launches = await _apiService.GetLaunchesAsync();
-                var sitesDict = new Dictionary<string, MapPointModel>();
 
-                foreach (var launch in launches)
+                var launchpadIds = launches
+                    .Where(l => !string.IsNullOrEmpty(l.LaunchpadId))
+                    .Select(l => l.LaunchpadId)
+                    .Distinct()
+                    .ToList();
+
+                foreach (var padId in launchpadIds)
                 {
-                    if (string.IsNullOrEmpty(launch.LaunchpadId))
-                        continue;
-
-                    if (!sitesDict.ContainsKey(launch.LaunchpadId))
+                    try
                     {
-                        var launchpad = await _apiService.GetLaunchpadAsync(launch.LaunchpadId);
-                        if (launchpad != null)
+                        var pad = await _apiService.GetLaunchpadAsync(padId);
+                        if (pad == null) continue;
+
+                        LaunchSites.Add(new MapPointModel
                         {
-                            sitesDict[launch.LaunchpadId] = new MapPointModel
-                            {
-                                Id = launchpad.Id,
-                                Name = launchpad.Name,
-                                Latitude = launchpad.Latitude,
-                                Longitude = launchpad.Longitude,
-                                LaunchCount = 0,
-                                SuccessCount = 0
-                            };
-                        }
+                            Id = pad.Id,
+                            Name = pad.Name,
+                            Info = $"{pad.Region} — {pad.LaunchSuccesses}/{pad.LaunchAttempts} lanzamientos",
+                            Latitude = pad.Latitude,
+                            Longitude = pad.Longitude,
+                            TotalLaunches = pad.LaunchAttempts
+                        });
                     }
-
-                    if (sitesDict.ContainsKey(launch.LaunchpadId))
-                    {
-                        var point = sitesDict[launch.LaunchpadId];
-                        point.LaunchCount++;
-                        if (launch.Success == true)
-                            point.SuccessCount++;
-                    }
+                    catch { /* Si falla un pad individual, continuamos con los demas */ }
                 }
-
-                LaunchSites = new ObservableCollection<MapPointModel>(
-                    sitesDict.Values.OrderBy(s => s.Name)
-                );
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Error: {ex.Message}";
+                ErrorMessage = $"Error al cargar sitios: {ex.Message}";
             }
             finally
             {
@@ -120,72 +103,64 @@ namespace EspaceX_api.ViewModels
             }
         }
 
-        partial void OnSelectedSiteChanged(MapPointModel value)
+        // Zoom y reset — delegan al ViewModel, la View solo llama el comando
+        [RelayCommand] private void ZoomIn() => ZoomLevel = Math.Min(ZoomLevel + ZoomStep, ZoomMax);
+        [RelayCommand] private void ZoomOut() => ZoomLevel = Math.Max(ZoomLevel - ZoomStep, ZoomMin);
+        [RelayCommand] private void ResetView() { ZoomLevel = 1.0; PanX = 0; PanY = 0; }
+
+        // Estos tres metodos son llamados desde MapView.xaml.cs (code-behind)
+        // para los eventos de mouse. El estado del drag vive aqui, no en la View. (SRP)
+        public void BeginDrag(double x, double y)
         {
-            LoadSiteLaunches(value?.Id);
+            _isDragging = true;
+            _lastDragX = x;
+            _lastDragY = y;
         }
 
-        [RelayCommand]
-        public void ZoomIn()
+        public void EndDrag() => _isDragging = false;
+
+        public void UpdateDrag(double currentX, double currentY)
         {
-            ZoomLevel = Math.Min(ZoomLevel + 0.2, 3.0);
+            if (!_isDragging) return;
+            PanX += currentX - _lastDragX;
+            PanY += currentY - _lastDragY;
+            _lastDragX = currentX;
+            _lastDragY = currentY;
         }
 
-        [RelayCommand]
-        public void ZoomOut()
+        // Convierte lat/lon geograficos a coordenadas de pantalla
+        // aplicando proyeccion Mercator + zoom + pan.
+        // Es public porque MapView.xaml.cs lo llama al dibujar los puntos en el Canvas.
+        public (double x, double y) GeographicToScreenCoordinates(
+            double latitude, double longitude, double canvasWidth, double canvasHeight)
         {
-            ZoomLevel = Math.Max(ZoomLevel - 0.2, 0.5);
+            double x = (longitude + 180.0) / 360.0;
+            double latRad = latitude * Math.PI / 180.0;
+            double mercN = Math.Log(Math.Tan(Math.PI / 4 + latRad / 2));
+            double y = 0.5 - mercN / (2 * Math.PI);
+
+            return (x * canvasWidth * ZoomLevel + PanX,
+                    y * canvasHeight * ZoomLevel + PanY);
         }
 
-        [RelayCommand]
-        public void ResetView()
+        // Filtra los lanzamientos del sitio seleccionado.
+        // Se llama automaticamente desde OnSelectedSiteChanged.
+        private async Task LoadLaunchesForSiteAsync(string siteId)
         {
-            ZoomLevel = 1.0;
-            PanX = 0;
-            PanY = 0;
-        }
-
-        private async void LoadSiteLaunches(string launchpadId)
-        {
-            if (string.IsNullOrEmpty(launchpadId))
-            {
-                SelectedSiteLaunches.Clear();
-                return;
-            }
-
             try
             {
                 var launches = await _apiService.GetLaunchesAsync();
-                var siteLaunches = launches
-                    .Where(l => l.LaunchpadId == launchpadId)
+                SelectedSiteLaunches.Clear();
+
+                foreach (var launch in launches
+                    .Where(l => l.LaunchpadId == siteId)
                     .OrderByDescending(l => l.DateUtc)
-                    .ToList();
-
-                SelectedSiteLaunches = new ObservableCollection<LaunchModel>(siteLaunches);
+                    .Take(20))
+                {
+                    SelectedSiteLaunches.Add(launch);
+                }
             }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Error: {ex.Message}";
-            }
-        }
-
-        /// <summary>
-        /// Convierte coordenadas geográficas a coordenadas de pantalla.
-        /// Usa proyección Mercator simplificada.
-        /// </summary>
-        public (double X, double Y) GeographicToScreenCoordinates(double latitude, double longitude,
-            double canvasWidth, double canvasHeight)
-        {
-            const double maxLat = 85.051129;
-            const double maxLon = 180;
-
-            double x = (longitude + maxLon) / (maxLon * 2);
-            double y = (maxLat - latitude) / (maxLat * 2);
-
-            double screenX = (x * canvasWidth * ZoomLevel) + PanX;
-            double screenY = (y * canvasHeight * ZoomLevel) + PanY;
-
-            return (screenX, screenY);
+            catch { /* Silencioso: no interrumpir UX por fallo en detalle del sitio */ }
         }
     }
 }

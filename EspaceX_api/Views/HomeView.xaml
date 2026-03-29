@@ -1,85 +1,149 @@
-<UserControl x:Class="EspaceX_api.HomeView"
+<UserControl x:Class="EspaceX_api.Views.HomeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#1a1a1a">
+             Background="#020810">
+
+    <!-- Animaciones de cohetes al cargar la vista -->
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Rocket1"
+                                     Storyboard.TargetProperty="(Canvas.Top)"
+                                     From="700" To="-60" Duration="0:0:8"
+                                     RepeatBehavior="Forever"/>
+                    <DoubleAnimation Storyboard.TargetName="Rocket1"
+                                     Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.5"
+                                     AutoReverse="True" RepeatBehavior="Forever"/>
+                    <DoubleAnimation Storyboard.TargetName="Rocket2"
+                                     Storyboard.TargetProperty="(Canvas.Top)"
+                                     From="700" To="-60" Duration="0:0:11"
+                                     BeginTime="0:0:4" RepeatBehavior="Forever"/>
+                    <DoubleAnimation Storyboard.TargetName="Rocket2"
+                                     Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.5"
+                                     BeginTime="0:0:4" AutoReverse="True"
+                                     RepeatBehavior="Forever"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
     <Grid>
+        <!-- Canvas de fondo: estrellas generadas desde HomeView.xaml.cs -->
+        <Canvas x:Name="StarsCanvas"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"/>
+
+        <!-- Canvas de cohetes animados usando caracteres ASCII simples -->
+        <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <TextBlock x:Name="Rocket1" Text="^" FontSize="28"
+                       Foreground="#00D4FF" Opacity="0"
+                       Canvas.Left="120" Canvas.Top="700"
+                       RenderTransformOrigin="0.5,0.5">
+                <TextBlock.RenderTransform>
+                    <RotateTransform Angle="-15"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+            <TextBlock x:Name="Rocket2" Text="*" FontSize="20"
+                       Foreground="#7bafd4" Opacity="0"
+                       Canvas.Left="350" Canvas.Top="700"
+                       RenderTransformOrigin="0.5,0.5">
+                <TextBlock.RenderTransform>
+                    <RotateTransform Angle="-10"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+        </Canvas>
+
+        <!-- Contenido principal centrado -->
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="{Binding Title}" 
-                       FontSize="32" 
-                       FontWeight="Bold" 
-                       Foreground="White"
-                       TextAlignment="Center"/>
-            <TextBlock Text="{Binding Subtitle}" 
-                       FontSize="16" 
-                       Foreground="#cccccc"
-                       TextAlignment="Center"
-                       Margin="0,10,0,30"/>
-            
-            <Border Height="2" Background="#0066cc" Margin="0,0,0,30"/>
-            
-            <Grid Width="600">
-                <StackPanel Spacing="15">
-                    <!-- Botón Lanzamientos -->
-                    <Border Background="#333333" Padding="20" CornerRadius="5" Cursor="Hand">
-                        <Border.InputBindings>
-                            <MouseBinding MouseAction="LeftClick" 
-                                         Command="{Binding DataContext.NavigateToLaunchesCommand, 
-                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
-                        </Border.InputBindings>
-                        <StackPanel>
-                            <TextBlock Text="🛸 Lanzamientos" 
-                                       FontSize="20" 
-                                       FontWeight="Bold" 
-                                       Foreground="White"/>
-                            <TextBlock Text="Consulta el historial completo de lanzamientos de SpaceX" 
-                                       FontSize="12" 
-                                       Foreground="#cccccc"
-                                       TextWrapping="Wrap"
-                                       Margin="0,10,0,0"/>
-                        </StackPanel>
-                    </Border>
 
-                    <!-- Botón Cohetes -->
-                    <Border Background="#333333" Padding="20" CornerRadius="5" Cursor="Hand">
-                        <Border.InputBindings>
-                            <MouseBinding MouseAction="LeftClick" 
-                                         Command="{Binding DataContext.NavigateToRocketsCommand, 
-                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
-                        </Border.InputBindings>
-                        <StackPanel>
-                            <TextBlock Text="🚀 Cohetes" 
-                                       FontSize="20" 
-                                       FontWeight="Bold" 
-                                       Foreground="White"/>
-                            <TextBlock Text="Conoce las especificaciones técnicas de los cohetes" 
-                                       FontSize="12" 
-                                       Foreground="#cccccc"
-                                       TextWrapping="Wrap"
-                                       Margin="0,10,0,0"/>
-                        </StackPanel>
-                    </Border>
+            <!-- Titulo y subtitulo desde HomeViewModel -->
+            <TextBlock Text="{Binding Title}"
+                       FontSize="32" FontWeight="Bold"
+                       Foreground="White" TextAlignment="Center"/>
+            <TextBlock Text="{Binding Subtitle}"
+                       FontSize="14" Foreground="#8aafc8"
+                       TextAlignment="Center" Margin="0,10,0,30"/>
 
-                    <!-- Botón Mapa -->
-                    <Border Background="#333333" Padding="20" CornerRadius="5" Cursor="Hand">
-                        <Border.InputBindings>
-                            <MouseBinding MouseAction="LeftClick" 
-                                         Command="{Binding DataContext.NavigateToMapCommand, 
-                                                  RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
-                        </Border.InputBindings>
-                        <StackPanel>
-                            <TextBlock Text="🌍 Mapa de Lanzamientos" 
-                                       FontSize="20" 
-                                       FontWeight="Bold" 
-                                       Foreground="White"/>
-                            <TextBlock Text="Visualiza los sitios de lanzamiento en un mapa interactivo" 
-                                       FontSize="12" 
-                                       Foreground="#cccccc"
-                                       TextWrapping="Wrap"
-                                       Margin="0,10,0,0"/>
+            <!-- Linea separadora con degradado -->
+            <Rectangle Height="1" Margin="0,0,0,30">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#00000000" Offset="0"/>
+                        <GradientStop Color="#0066cc"   Offset="0.5"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <StackPanel Width="580">
+
+                <!-- Tarjeta Lanzamientos - acento cyan -->
+                <Border Background="#081828" BorderBrush="#0D4A6E" BorderThickness="1"
+                        Padding="22,18" CornerRadius="10" Cursor="Hand" Margin="0,0,0,14">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding GoToLaunchesCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="[*]" FontSize="14"
+                                       Foreground="#00D4FF" Margin="0,0,10,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="Lanzamientos"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="#00D4FF"/>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Grid>
+                        <TextBlock Text="Consulta el historial completo de lanzamientos de SpaceX"
+                                   FontSize="12" Foreground="#7bafd4" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta Cohetes - acento naranja -->
+                <Border Background="#130C1E" BorderBrush="#3A1A5C" BorderThickness="1"
+                        Padding="22,18" CornerRadius="10" Cursor="Hand" Margin="0,0,0,14">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding GoToRocketsCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="[^]" FontSize="14"
+                                       Foreground="#e8490f" Margin="0,0,10,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="Cohetes"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="#e8490f"/>
+                        </StackPanel>
+                        <TextBlock Text="Conoce las especificaciones tecnicas de los cohetes"
+                                   FontSize="12" Foreground="#9a7aba" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Tarjeta Mapa - acento verde -->
+                <Border Background="#081812" BorderBrush="#0D3D22" BorderThickness="1"
+                        Padding="22,18" CornerRadius="10" Cursor="Hand">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick"
+                                      Command="{Binding GoToMapCommand}"/>
+                    </Border.InputBindings>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Text="[o]" FontSize="14"
+                                       Foreground="#2ecc71" Margin="0,0,10,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="Mapa de Lanzamientos"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="#2ecc71"/>
+                        </StackPanel>
+                        <TextBlock Text="Visualiza los sitios de lanzamiento en un mapa interactivo"
+                                   FontSize="12" Foreground="#5aaa80" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -22,10 +22,10 @@ namespace EspaceX_api.Models
         /// Propiedad calculada: estado del lanzamiento.
         /// </summary>
         public string Status =>
-            Upcoming ? "Próximo" :
-            Success == true ? "Exitoso" :
-            Success == false ? "Fallido" :
-            "Desconocido";
+        Upcoming ? "Proximo" :
+        Success == true ? "Exitoso" :
+        Success == false ? "Fallido" :
+        "Desconocido";
 
         /// <summary>
         /// Propiedad calculada: fecha formateada.

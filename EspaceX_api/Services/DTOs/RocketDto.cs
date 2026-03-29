@@ -103,13 +103,13 @@ namespace EspaceX_api.Services.DTOs
         public string Type { get; set; }
 
         [JsonPropertyName("engine_loss_max")]
-        public int EngineLossMax { get; set; }
+        public int? EngineLossMax { get; set; }
 
         [JsonPropertyName("propellant_1")]
-        public PropellantDto Propellant1 { get; set; }
+        public string Propellant1 { get; set; }
 
         [JsonPropertyName("propellant_2")]
-        public PropellantDto Propellant2 { get; set; }
+        public string Propellant2 { get; set; }
 
         [JsonPropertyName("thrust_sea_level")]
         public ThrustDto ThrustSeaLevel { get; set; }
@@ -122,12 +122,6 @@ namespace EspaceX_api.Services.DTOs
 
         [JsonPropertyName("isp_vacuum")]
         public int? IspVacuum { get; set; }
-    }
-
-    public class PropellantDto
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
     }
 
     public class ThrustDto

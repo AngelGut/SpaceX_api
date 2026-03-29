@@ -5,22 +5,60 @@
         xmlns:views="clr-namespace:EspaceX_api.Views"
         Title="SpaceX Explorer" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen"
-        Background="#1a1a1a">
+        Background="#000000">
     <Grid>
         <DockPanel>
-            <!-- Header -->
-            <Border DockPanel.Dock="Top" Background="#0066cc" Height="60" Padding="20,0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="SpaceX Explorer"
-                               FontSize="28" FontWeight="Bold"
-                               Foreground="White" Margin="0,0,20,0"/>
-                    <TextBlock Text="| Datos en vivo desde SpaceX API"
-                               FontSize="14" Foreground="#cccccc"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
+            <!-- Header SpaceX style: negro con logotipo blanco y linea inferior sutil -->
+            <Border DockPanel.Dock="Top"
+                    Background="#000000"
+                    Height="56"
+                    Padding="28,0"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#1A1A1A">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Marca izquierda -->
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="SPACEX"
+                                   FontFamily="Segoe UI Black"
+                                   FontSize="17"
+                                   FontWeight="Black"
+                                   Foreground="#FFFFFF"
+                                   VerticalAlignment="Center"/>
+                        <Rectangle Width="1" Fill="#333333"
+                                   Margin="16,8,16,8" VerticalAlignment="Stretch"/>
+                        <TextBlock Text="EXPLORER"
+                                   FontFamily="Segoe UI Light"
+                                   FontSize="13"
+                                   FontWeight="Light"
+                                   Foreground="#888888"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Indicador de estado derecha -->
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Ellipse Width="6" Height="6"
+                                 Fill="#4CAF50"
+                                 Margin="0,0,8,0"
+                                 VerticalAlignment="Center"/>
+                        <TextBlock Text="LIVE DATA"
+                                   FontFamily="Segoe UI"
+                                   FontSize="10"
+                                   Foreground="#4CAF50"/>
+                    </StackPanel>
+
+                </Grid>
             </Border>
 
-            <!-- ContentControl: cambia la vista segun el ViewModel activo -->
+            <!-- Contenido dinamico segun ViewModel activo -->
             <ContentControl Content="{Binding CurrentViewModel}">
                 <ContentControl.Resources>
                     <DataTemplate DataType="{x:Type vm:HomeViewModel}">

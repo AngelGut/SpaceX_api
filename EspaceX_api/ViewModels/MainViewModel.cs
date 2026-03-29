@@ -32,7 +32,6 @@ namespace EspaceX_api.ViewModels
             );
 
             // Inyectamos la accion "Volver al Home" en cada ViewModel secundario.
-            // Se hace aqui porque DI construyo esos VMs antes de que existiera MainViewModel.
             _launchesViewModel.SetNavigateToHome(NavigateToHome);
             _rocketsViewModel.SetNavigateToHome(NavigateToHome);
             _mapViewModel.SetNavigateToHome(NavigateToHome);
@@ -60,8 +59,9 @@ namespace EspaceX_api.ViewModels
         [RelayCommand]
         public void NavigateToMap()
         {
+            // No carga sitios automaticamente.
+            // El usuario debe presionar "Cargar Sitios" manualmente.
             CurrentViewModel = _mapViewModel;
-            _mapViewModel.LoadLaunchSitesCommand.Execute(null);
         }
 
         [RelayCommand]

@@ -1,130 +1,230 @@
 <UserControl x:Class="EspaceX_api.Views.MapView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#1a1a1a">
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 Background="#0a0e1a">
     <Grid>
         <DockPanel>
 
-            <!-- Toolbar -->
-            <Border DockPanel.Dock="Top" Background="#333333" Padding="15"
-                    BorderThickness="0,0,0,1" BorderBrush="#0066cc">
+            <!-- TOOLBAR: boton volver + controles del mapa -->
+            <Border DockPanel.Dock="Top" Background="#0d1520" Padding="15,10"
+                        BorderThickness="0,0,0,1" BorderBrush="#1e3a5c">
                 <StackPanel Orientation="Horizontal">
+
+                    <!-- Boton Volver al Home - ejecuta GoHomeCommand en MapViewModel -->
+                    <Button Command="{Binding GoHomeCommand}"
+                                Padding="12,8" Margin="0,0,16,0" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bg" CornerRadius="4" Background="Transparent"
+                                            BorderBrush="#2a4a6a" BorderThickness="1"
+                                            Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bg" Property="Background" Value="#0d1e30"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock Text="&lt;- VOLVER" Foreground="#7bafd4"
+                                       FontFamily="Courier New" FontSize="11" FontWeight="Bold"/>
+                    </Button>
+
+                    <!-- Separador vertical -->
+                    <Rectangle Width="1" Fill="#2a4a6a" Margin="0,0,16,0"/>
+
+                    <!-- Boton cargar sitios de lanzamiento desde la API -->
                     <Button Command="{Binding LoadLaunchSitesCommand}"
-                            Background="#0066cc" Foreground="White"
-                            Padding="15,8" FontWeight="Bold" Margin="0,0,10,0">
+                                Background="#0066cc" Foreground="White"
+                                Padding="15,8" FontWeight="Bold" Margin="0,0,10,0"
+                                BorderThickness="0" Cursor="Hand">
                         Cargar Sitios
                     </Button>
+
+                    <!-- Controles de zoom -->
                     <Button Command="{Binding ZoomInCommand}"
-                            Background="#444444" Foreground="White"
-                            Padding="10,8" FontWeight="Bold" Margin="0,0,5,0">
+                                Background="#1a2a3a" Foreground="White"
+                                BorderBrush="#2a4a6a" BorderThickness="1"
+                                Padding="10,8" FontWeight="Bold" Margin="0,0,5,0"
+                                Cursor="Hand">
                         Zoom +
                     </Button>
                     <Button Command="{Binding ZoomOutCommand}"
-                            Background="#444444" Foreground="White"
-                            Padding="10,8" FontWeight="Bold" Margin="0,0,5,0">
+                                Background="#1a2a3a" Foreground="White"
+                                BorderBrush="#2a4a6a" BorderThickness="1"
+                                Padding="10,8" FontWeight="Bold" Margin="0,0,5,0"
+                                Cursor="Hand">
                         Zoom -
                     </Button>
                     <Button Command="{Binding ResetViewCommand}"
-                            Background="#444444" Foreground="White"
-                            Padding="10,8" FontWeight="Bold">
+                                Background="#1a2a3a" Foreground="White"
+                                BorderBrush="#2a4a6a" BorderThickness="1"
+                                Padding="10,8" FontWeight="Bold"
+                                Cursor="Hand">
                         Reset
                     </Button>
+
                 </StackPanel>
             </Border>
 
-            <!-- Error Message -->
-            <Border DockPanel.Dock="Top" Background="#cc0000" Padding="10,5"
-                    Visibility="{Binding ErrorMessage,
-                                 Converter={StaticResource StringToVisibilityConverter}}">
+            <!-- ERROR: visible solo cuando ErrorMessage tiene contenido -->
+            <Border DockPanel.Dock="Top" Background="#2a0d0d"
+                        BorderBrush="#6a1a1a" BorderThickness="0,0,0,1" Padding="15,8"
+                        Visibility="{Binding ErrorMessage,
+                                     Converter={StaticResource StringToVisibilityConverter}}">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="White" FontWeight="Bold"/>
+                               Foreground="#e74c3c" FontWeight="Bold"/>
             </Border>
 
-            <!-- Main Content -->
+            <!-- CONTENIDO PRINCIPAL: canvas del mapa + sidebar -->
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <!-- Canvas del mapa ocupa 3/4 del ancho -->
                     <ColumnDefinition Width="3*"/>
+                    <!-- Sidebar ocupa 300px fijos -->
                     <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Canvas del mapa + Overlay de carga -->
+                <!-- CANVAS DEL MAPA
+                         HorizontalAlignment y VerticalAlignment Stretch son criticos:
+                         sin ellos ActualWidth/ActualHeight son 0 y DrawMap() no dibuja nada -->
                 <Grid Grid.Column="0">
+                    <Canvas x:Name="MapCanvas"
+                                Background="#060c14"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                ClipToBounds="True"/>
 
-                    <Canvas Background="#0a0a0a" x:Name="MapCanvas"/>
 
-                    <!-- Overlay semitransparente mientras IsLoading = true -->
-                    <Border Background="#AA000000"
-                            Visibility="{Binding IsLoading,
-                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
+                    <!-- Overlay de carga encima del canvas -->
+                    <Border Background="#AA000000">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="Cargando sitios..."
-                                       Foreground="White"
-                                       FontSize="18"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Center"/>
+                                           Foreground="White" FontSize="18" FontWeight="Bold"
+                                           HorizontalAlignment="Center"/>
                             <ProgressBar IsIndeterminate="True"
-                                         Width="200"
-                                         Height="8"
-                                         Margin="0,15,0,0"
-                                         Foreground="#0066cc"
-                                         Background="#333333"/>
+                                             Width="200" Height="8" Margin="0,15,0,0"
+                                             Foreground="#0066cc" Background="#1a2a3a"/>
                         </StackPanel>
                     </Border>
-
                 </Grid>
 
-                <!-- Sidebar -->
-                <Border Grid.Column="1" Background="#2a2a2a"
-                        BorderThickness="1,0,0,0" BorderBrush="#444444">
+                <!-- SIDEBAR DERECHO -->
+                <Border Grid.Column="1" Background="#0d1520"
+                            BorderThickness="1,0,0,0" BorderBrush="#1e3a5c">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top"
-                                   Text="Sitios de Lanzamiento"
-                                   FontSize="14" FontWeight="Bold"
-                                   Foreground="White" Padding="15,10"/>
-                        <Border DockPanel.Dock="Bottom" Background="#1a1a1a"
-                                Padding="10,8" BorderThickness="0,1,0,0"
-                                BorderBrush="#555555">
-                            <TextBlock Text="Lanzamientos del sitio seleccionado"
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="White"/>
+
+                        <!-- Titulo del sidebar -->
+                        <Border DockPanel.Dock="Top" Background="#0f2030"
+                                    BorderThickness="0,0,0,1" BorderBrush="#1e3a5c"
+                                    Padding="15,10">
+                            <TextBlock Text="Sitios de Lanzamiento"
+                                           FontSize="14" FontWeight="Bold" Foreground="#7bafd4"/>
                         </Border>
+
+                        <!-- Label inferior de lanzamientos del sitio seleccionado -->
+                        <Border DockPanel.Dock="Bottom" Background="#080d14"
+                                    Padding="10,8" BorderThickness="0,1,0,0"
+                                    BorderBrush="#1e3a5c">
+                            <TextBlock Text="Lanzamientos del sitio seleccionado"
+                                           FontSize="12" FontWeight="Bold" Foreground="#7bafd4"/>
+                        </Border>
+
+                        <!-- Tabla de lanzamientos del sitio seleccionado -->
+                        <!-- Tabla de lanzamientos del sitio seleccionado -->
                         <DataGrid DockPanel.Dock="Bottom"
-                                  ItemsSource="{Binding SelectedSiteLaunches}"
-                                  AutoGenerateColumns="False"
-                                  Background="#2a2a2a" Foreground="White"
-                                  GridLinesVisibility="None"
-                                  RowHeaderWidth="0" CanUserAddRows="False"
-                                  Height="200" FontSize="11">
+                                      ItemsSource="{Binding SelectedSiteLaunches}"
+                                      AutoGenerateColumns="False"
+                                      Background="#080d14" Foreground="#c8dff0"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="#111e2e"
+                                      RowHeaderWidth="0" CanUserAddRows="False"
+                                     Height="200" FontSize="11" BorderThickness="0"
+                                      IsReadOnly="True">
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#0f1e30"/>
+                                    <Setter Property="Foreground" Value="#7bafd4"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                    <Setter Property="Padding" Value="10,6"/>
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+
+                            <!-- Fondo oscuro forzado en cada fila para evitar
+                                     que el estilo global de App.xaml lo sobreescriba -->
+                            <DataGrid.RowStyle>
+                                <Style TargetType="DataGridRow">
+                                    <Setter Property="Background" Value="#080d14"/>
+                                    <Setter Property="Foreground" Value="#c8dff0"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#0d2440"/>
+                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#0d1e30"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+
+                            <!-- Color de celda forzado -->
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="#c8dff0"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#ffffff"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.CellStyle>
+
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Nombre"
-                                                    Binding="{Binding Name}"
-                                                    Width="*"/>
+                                                        Binding="{Binding Name}" Width="*"/>
                                 <DataGridTextColumn Header="Fecha"
-                                                    Binding="{Binding DateUtc, StringFormat='{}{0:dd/MM/yy}'}"
-                                                    Width="80"/>
+                                                        Binding="{Binding DateUtc, StringFormat='{}{0:dd/MM/yy}'}"
+                                                        Width="80"/>
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <!-- Lista de sitios de lanzamiento -->
                         <ListBox ItemsSource="{Binding LaunchSites}"
-                                 SelectedItem="{Binding SelectedSite}"
-                                 Background="#2a2a2a" Foreground="White"
-                                 BorderThickness="0">
+                                     SelectedItem="{Binding SelectedSite}"
+                                     Background="#0d1520" Foreground="White"
+                                     BorderThickness="0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="#333333" Padding="10"
-                                            Margin="5,3" CornerRadius="3">
+                                    <Border Background="#0f2030" Padding="12,8"
+                                                Margin="5,3" CornerRadius="5"
+                                                BorderBrush="#1e3a5c" BorderThickness="1">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}"
-                                                       FontWeight="Bold"
-                                                       Foreground="White"/>
+                                                           FontWeight="Bold" Foreground="#00D4FF"/>
                                             <TextBlock Text="{Binding Info}"
-                                                       FontSize="11"
-                                                       Foreground="#aaaaaa"/>
+                                                           FontSize="11" Foreground="#7bafd4"/>
                                         </StackPanel>
                                     </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
+
                     </DockPanel>
                 </Border>
 

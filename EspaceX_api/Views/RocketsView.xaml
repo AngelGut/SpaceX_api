@@ -5,7 +5,7 @@
     <Grid>
         <DockPanel>
 
-            <!-- HEADER -->
+            <!-- HEADER: titulo y estado del sistema -->
             <Border DockPanel.Dock="Top" Height="68">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -19,10 +19,12 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
+
+                    <!-- Titulo izquierdo -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal"
                                 VerticalAlignment="Center" Margin="18,0,0,0">
-                        <TextBlock Text="&#x1F680;" FontSize="26" VerticalAlignment="Center"
-                                   Margin="0,0,12,0"/>
+                        <TextBlock Text="&gt;&gt;" FontSize="20" VerticalAlignment="Center"
+                                   Foreground="#e8490f" Margin="0,0,12,0"/>
                         <StackPanel>
                             <TextBlock Text="SPACEX MISSION CONTROL"
                                        FontFamily="Courier New" FontSize="10" Foreground="#7bafd4"/>
@@ -31,6 +33,8 @@
                                        FontWeight="Bold"/>
                         </StackPanel>
                     </StackPanel>
+
+                    <!-- Indicador de estado derecho -->
                     <Border Grid.Column="2" Margin="0,0,18,0" VerticalAlignment="Center"
                             Background="#0d2a1a" BorderBrush="#1a6640"
                             BorderThickness="1" CornerRadius="4" Padding="12,6">
@@ -44,7 +48,7 @@
                 </Grid>
             </Border>
 
-            <!-- Linea acento naranja -->
+            <!-- Linea decorativa naranja debajo del header -->
             <Rectangle DockPanel.Dock="Top" Height="2">
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -55,22 +59,51 @@
                 </Rectangle.Fill>
             </Rectangle>
 
-            <!-- TOOLBAR -->
+            <!-- TOOLBAR: boton volver + cargar + actualizar -->
             <Border DockPanel.Dock="Top" Background="#0d1520"
                     Padding="18,10" BorderThickness="0,0,0,1" BorderBrush="#1e3a5c">
                 <StackPanel Orientation="Horizontal">
+
+                    <!-- Boton Volver al Home - ejecuta GoHomeCommand en RocketsViewModel -->
+                    <Button Command="{Binding GoHomeCommand}"
+                            Padding="12,8" Margin="0,0,16,0" Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bg" CornerRadius="4" Background="Transparent"
+                                        BorderBrush="#2a4a6a" BorderThickness="1"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bg" Property="Background" Value="#0d1e30"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock Text="&lt;- VOLVER" Foreground="#7bafd4"
+                                   FontFamily="Courier New" FontSize="11" FontWeight="Bold"/>
+                    </Button>
+
+                    <!-- Separador vertical -->
+                    <Rectangle Width="1" Fill="#2a4a6a" Margin="0,0,16,0"/>
+
+                    <!-- Boton Cargar con degradado naranja -->
                     <Button Command="{Binding LoadRocketsCommand}"
                             Padding="16,8" Margin="0,0,10,0" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bg" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                <Border x:Name="bg" CornerRadius="4"
+                                        Padding="{TemplateBinding Padding}">
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                             <GradientStop Color="#e8490f" Offset="0"/>
                                             <GradientStop Color="#ff6a2f" Offset="1"/>
                                         </LinearGradientBrush>
                                     </Border.Background>
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
@@ -85,6 +118,8 @@
                         <TextBlock Text="CARGAR" Foreground="White"
                                    FontFamily="Courier New" FontSize="12" FontWeight="Bold"/>
                     </Button>
+
+                    <!-- Boton Actualizar con borde naranja -->
                     <Button Command="{Binding RefreshCommand}"
                             Padding="16,8" Margin="0,0,16,0" Cursor="Hand">
                         <Button.Template>
@@ -92,7 +127,8 @@
                                 <Border x:Name="bg" CornerRadius="4" Background="Transparent"
                                         BorderBrush="#e8490f" BorderThickness="1.5"
                                         Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
@@ -104,19 +140,23 @@
                         <TextBlock Text="ACTUALIZAR" Foreground="#e8490f"
                                    FontFamily="Courier New" FontSize="12" FontWeight="Bold"/>
                     </Button>
+
+                    <!-- Separador + etiqueta decorativa -->
                     <Rectangle Width="1" Fill="#2a4a6a" Margin="0,0,16,0"/>
                     <Border CornerRadius="14" Background="#0f2030" BorderBrush="#1e3a5c"
                             BorderThickness="1" Padding="14,5" VerticalAlignment="Center">
                         <TextBlock FontFamily="Courier New" FontSize="11"
                                    Foreground="#7bafd4" Text="COHETES SPACEX"/>
                     </Border>
+
                 </StackPanel>
             </Border>
 
-            <!-- ERROR -->
+            <!-- ERROR: visible solo cuando ErrorMessage tiene contenido -->
             <Border DockPanel.Dock="Bottom" Background="#2a0d0d"
                     BorderBrush="#6a1a1a" BorderThickness="0,1,0,0" Padding="18,12"
-                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                    Visibility="{Binding ErrorMessage,
+                                 Converter={StaticResource StringToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="! " Foreground="#e74c3c"
                                FontFamily="Courier New" FontSize="13"/>
@@ -125,7 +165,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- DATAGRID -->
+            <!-- DATAGRID: tabla principal de cohetes -->
             <DataGrid ItemsSource="{Binding Rockets}"
                       SelectedItem="{Binding SelectedRocket}"
                       AutoGenerateColumns="False"
@@ -136,6 +176,7 @@
                       IsReadOnly="True" SelectionMode="Single"
                       BorderThickness="0" ColumnHeaderHeight="36"
                       FontFamily="Courier New" FontSize="12" RowHeight="48">
+
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
                         <Setter Property="Background" Value="#0f1e30"/>
@@ -148,6 +189,7 @@
                         <Setter Property="BorderThickness" Value="0,0,1,0"/>
                     </Style>
                 </DataGrid.ColumnHeaderStyle>
+
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Setter Property="Background" Value="#080d14"/>
@@ -163,6 +205,7 @@
                         </Style.Triggers>
                     </Style>
                 </DataGrid.RowStyle>
+
                 <DataGrid.CellStyle>
                     <Style TargetType="DataGridCell">
                         <Setter Property="Foreground" Value="#c8dff0"/>
@@ -177,18 +220,28 @@
                         </Style.Triggers>
                     </Style>
                 </DataGrid.CellStyle>
+
+                <!-- Columnas de datos del cohete -->
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="NOMBRE" Binding="{Binding Name}" Width="160"/>
-                    <DataGridTextColumn Header="TIPO" Binding="{Binding Type}" Width="110"/>
-                    <DataGridTextColumn Header="ESTADO" Binding="{Binding Status}" Width="90"/>
-                    <DataGridTextColumn Header="1ER VUELO" Binding="{Binding FirstFlight}" Width="110"/>
-                    <DataGridTextColumn Header="ALTURA" Binding="{Binding HeightFormatted}" Width="130"/>
-                    <DataGridTextColumn Header="MASA" Binding="{Binding MassFormatted}" Width="120"/>
+                    <DataGridTextColumn Header="NOMBRE"
+                                        Binding="{Binding Name}" Width="160"/>
+                    <DataGridTextColumn Header="TIPO"
+                                        Binding="{Binding Type}" Width="110"/>
+                    <DataGridTextColumn Header="ESTADO"
+                                        Binding="{Binding Status}" Width="90"/>
+                    <DataGridTextColumn Header="1ER VUELO"
+                                        Binding="{Binding FirstFlight}" Width="110"/>
+                    <DataGridTextColumn Header="ALTURA"
+                                        Binding="{Binding HeightFormatted}" Width="130"/>
+                    <DataGridTextColumn Header="MASA"
+                                        Binding="{Binding MassFormatted}" Width="120"/>
                     <DataGridTextColumn Header="TASA EXITO"
                                         Binding="{Binding SuccessRatePct, StringFormat='{}{0:F1}%'}"
                                         Width="100"/>
-                    <DataGridTextColumn Header="COSTO" Binding="{Binding CostFormatted}" Width="*"/>
+                    <DataGridTextColumn Header="COSTO"
+                                        Binding="{Binding CostFormatted}" Width="*"/>
                 </DataGrid.Columns>
+
             </DataGrid>
 
         </DockPanel>

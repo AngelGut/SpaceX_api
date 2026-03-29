@@ -9,17 +9,15 @@ using System.Threading.Tasks;
 
 namespace EspaceX_api.ViewModels
 {
-    /// <summary>
-    /// ViewModel del mapa interactivo de sitios de lanzamiento.
-    /// Responsabilidad única: gestionar datos y estado del mapa (zoom, pan, sitios, lanzamientos).
-    /// No tiene ninguna referencia a controles UI (Canvas, Mouse, etc.).
-    /// (Single Responsibility Principle + Dependency Inversion)
-    /// </summary>
     public partial class MapViewModel : ObservableObject
     {
         private readonly ISpaceXApiService _apiService;
 
-        
+        // Accion para volver al Home.
+        // Se asigna desde MainViewModel via SetNavigateToHome()
+        // porque DI construye este VM antes que MainViewModel.
+        private Action _navigateToHome;
+
         private const double ZoomStep = 0.2;
         private const double ZoomMin = 0.5;
         private const double ZoomMax = 5.0;
@@ -28,42 +26,28 @@ namespace EspaceX_api.ViewModels
         private double _lastDragX = 0;
         private double _lastDragY = 0;
 
-        
-        [ObservableProperty]
-        private ObservableCollection<MapPointModel> launchSites = new();
+        [ObservableProperty] private ObservableCollection<MapPointModel> launchSites = new();
+        [ObservableProperty] private MapPointModel? selectedSite;
+        [ObservableProperty] private ObservableCollection<LaunchModel> selectedSiteLaunches = new();
+        [ObservableProperty] private string errorMessage = string.Empty;
+        [ObservableProperty] private bool isLoading;
+        [ObservableProperty] private double zoomLevel = 1.0;
+        [ObservableProperty] private double panX = 0;
+        [ObservableProperty] private double panY = 0;
 
-        [ObservableProperty]
-        private MapPointModel? selectedSite;
-
-        [ObservableProperty]
-        private ObservableCollection<LaunchModel> selectedSiteLaunches = new();
-
-        [ObservableProperty]
-        private string errorMessage = string.Empty;
-
-        [ObservableProperty]
-        private bool isLoading;
-
-        [ObservableProperty]
-        private double zoomLevel = 1.0;
-
-        [ObservableProperty]
-        private double panX = 0;
-
-        [ObservableProperty]
-        private double panY = 0;
-
-        /// <summary>
-        /// Recibe ISpaceXApiService por inyección de dependencias.
-        /// (Dependency Inversion Principle)
-        /// </summary>
         public MapViewModel(ISpaceXApiService apiService)
         {
             _apiService = apiService ?? throw new ArgumentNullException(nameof(apiService));
         }
 
-        //TODO: Cargar sitios al inicializar el ViewModel, o dejar que la View lo haga al cargar
+        // Llamado desde MainViewModel despues de que DI construye este VM
+        public void SetNavigateToHome(Action action) => _navigateToHome = action;
 
+        // Comando que ejecuta el boton "Volver" en MapView.xaml
+        [RelayCommand]
+        public void GoHome() => _navigateToHome?.Invoke();
+
+        // Se dispara automaticamente cuando el usuario selecciona un sitio en la lista
         partial void OnSelectedSiteChanged(MapPointModel? value)
         {
             SelectedSiteLaunches.Clear();
@@ -71,11 +55,7 @@ namespace EspaceX_api.ViewModels
             _ = LoadLaunchesForSiteAsync(value.Id);
         }
 
-        //TODO: Comando para recargar sitios manualmente, por si el usuario quiere actualizar la información sin reiniciar la app.
-
-        /// <summary>
-        /// Carga todos los sitios de lanzamiento desde la API y los convierte en MapPointModel.
-        /// </summary>
+        // Carga todos los launchpads desde la API y los convierte en puntos del mapa
         [RelayCommand]
         private async Task LoadLaunchSites()
         {
@@ -110,10 +90,7 @@ namespace EspaceX_api.ViewModels
                             TotalLaunches = pad.LaunchAttempts
                         });
                     }
-                    catch
-                    {
-                        // Si falla un pad individual, continuamos con los demás
-                    }
+                    catch { /* Si falla un pad individual, continuamos con los demas */ }
                 }
             }
             catch (Exception ex)
@@ -126,35 +103,13 @@ namespace EspaceX_api.ViewModels
             }
         }
 
-        //TODO: Comandos para zoom in/out y reset view, que ajusten ZoomLevel y PanX/PanY respectivamente.
+        // Zoom y reset — delegan al ViewModel, la View solo llama el comando
+        [RelayCommand] private void ZoomIn() => ZoomLevel = Math.Min(ZoomLevel + ZoomStep, ZoomMax);
+        [RelayCommand] private void ZoomOut() => ZoomLevel = Math.Max(ZoomLevel - ZoomStep, ZoomMin);
+        [RelayCommand] private void ResetView() { ZoomLevel = 1.0; PanX = 0; PanY = 0; }
 
-        [RelayCommand]
-        private void ZoomIn()
-        {
-            ZoomLevel = Math.Min(ZoomLevel + ZoomStep, ZoomMax);
-        }
-
-        [RelayCommand]
-        private void ZoomOut()
-        {
-            ZoomLevel = Math.Max(ZoomLevel - ZoomStep, ZoomMin);
-        }
-
-        [RelayCommand]
-        private void ResetView()
-        {
-            ZoomLevel = 1.0;
-            PanX = 0;
-            PanY = 0;
-        }
-
-        //TODO: Metodo para manejar drag del mapa, que actualice PanX/PanY según el movimiento del mouse. La View llamará esto desde los eventos de mouse.
-
-        /// <summary>
-        /// Notifica al ViewModel que el usuario empezó a arrastrar el mapa.
-        /// La View llama esto desde MouseLeftButtonDown.
-        /// (SRP: el estado del drag vive aquí, no en el code-behind)
-        /// </summary>
+        // Estos tres metodos son llamados desde MapView.xaml.cs (code-behind)
+        // para los eventos de mouse. El estado del drag vive aqui, no en la View. (SRP)
         public void BeginDrag(double x, double y)
         {
             _isDragging = true;
@@ -162,38 +117,20 @@ namespace EspaceX_api.ViewModels
             _lastDragY = y;
         }
 
-        /// <summary>
-        /// Notifica al ViewModel que el usuario soltó el mouse.
-        /// La View llama esto desde MouseLeftButtonUp.
-        /// </summary>
-        public void EndDrag()
-        {
-            _isDragging = false;
-        }
+        public void EndDrag() => _isDragging = false;
 
-        /// <summary>
-        /// Actualiza PanX/PanY según el movimiento del mouse.
-        /// La View solo pasa las coordenadas actuales; el ViewModel calcula el delta.
-        /// (SRP: lógica de negocio del pan centralizada aquí)
-        /// </summary>
         public void UpdateDrag(double currentX, double currentY)
         {
             if (!_isDragging) return;
-
             PanX += currentX - _lastDragX;
             PanY += currentY - _lastDragY;
-
             _lastDragX = currentX;
             _lastDragY = currentY;
         }
 
-        //TODO: Conversion de coordenadas geográficas a pantalla, aplicando proyección Mercator + zoom + pan. La View la usará para posicionar los puntos en el Canvas.
-
-        /// <summary>
-        /// Convierte coordenadas geográficas a coordenadas de pantalla
-        /// aplicando proyección Mercator + zoom + pan.
-        /// Es público para que MapView.xaml.cs lo use al dibujar.
-        /// </summary>
+        // Convierte lat/lon geograficos a coordenadas de pantalla
+        // aplicando proyeccion Mercator + zoom + pan.
+        // Es public porque MapView.xaml.cs lo llama al dibujar los puntos en el Canvas.
         public (double x, double y) GeographicToScreenCoordinates(
             double latitude, double longitude, double canvasWidth, double canvasHeight)
         {
@@ -202,37 +139,28 @@ namespace EspaceX_api.ViewModels
             double mercN = Math.Log(Math.Tan(Math.PI / 4 + latRad / 2));
             double y = 0.5 - mercN / (2 * Math.PI);
 
-            double screenX = x * canvasWidth * ZoomLevel + PanX;
-            double screenY = y * canvasHeight * ZoomLevel + PanY;
-
-            return (screenX, screenY);
+            return (x * canvasWidth * ZoomLevel + PanX,
+                    y * canvasHeight * ZoomLevel + PanY);
         }
 
-        //TODO: Cargar lanzamientos para el sitio seleccionado, filtrando por LaunchpadId. Esto se llama automáticamente cuando cambia SelectedSite.
-
-        /// <summary>
-        /// Filtra los lanzamientos del sitio seleccionado y los carga en SelectedSiteLaunches.
-        /// </summary>
+        // Filtra los lanzamientos del sitio seleccionado.
+        // Se llama automaticamente desde OnSelectedSiteChanged.
         private async Task LoadLaunchesForSiteAsync(string siteId)
         {
             try
             {
                 var launches = await _apiService.GetLaunchesAsync();
-
                 SelectedSiteLaunches.Clear();
 
-                var filtered = launches
+                foreach (var launch in launches
                     .Where(l => l.LaunchpadId == siteId)
                     .OrderByDescending(l => l.DateUtc)
-                    .Take(20);
-
-                foreach (var launch in filtered)
+                    .Take(20))
+                {
                     SelectedSiteLaunches.Add(launch);
+                }
             }
-            catch
-            {
-                // Silencioso: no interrumpir UX por fallo en detalle del sitio
-            }
+            catch { /* Silencioso: no interrumpir UX por fallo en detalle del sitio */ }
         }
     }
 }

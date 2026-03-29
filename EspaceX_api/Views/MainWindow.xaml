@@ -8,6 +8,7 @@
         Background="#1a1a1a">
     <Grid>
         <DockPanel>
+            <!-- Header -->
             <Border DockPanel.Dock="Top" Background="#0066cc" Height="60" Padding="20,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="SpaceX Explorer"
@@ -19,9 +20,10 @@
                 </StackPanel>
             </Border>
 
+            <!-- ContentControl: cambia la vista segun el ViewModel activo -->
             <ContentControl Content="{Binding CurrentViewModel}">
                 <ContentControl.Resources>
-                    <!--<DataTemplate DataType="{x:Type vm:HomeViewModel}">
+                    <DataTemplate DataType="{x:Type vm:HomeViewModel}">
                         <views:HomeView />
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:LaunchesViewModel}">
@@ -29,7 +31,7 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:RocketsViewModel}">
                         <views:RocketsView />
-                    </DataTemplate>-->
+                    </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:MapViewModel}">
                         <views:MapView />
                     </DataTemplate>

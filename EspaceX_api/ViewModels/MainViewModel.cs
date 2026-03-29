@@ -2,21 +2,10 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using EspaceX_api.ViewModels;
-using System;
-
 namespace EspaceX_api.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        /// <summary>
-        /// ViewModel principal que coordina navegación entre vistas.
-        /// Responsabilidad única: gestionar la vista activa.
-        /// (Single Responsibility Principle)
-        /// </summary>
-        
         [ObservableProperty]
         private ObservableObject currentViewModel;
 
@@ -26,15 +15,26 @@ namespace EspaceX_api.ViewModels
         private readonly MapViewModel _mapViewModel;
 
         public MainViewModel(
-            HomeViewModel homeViewModel,
             LaunchesViewModel launchesViewModel,
             RocketsViewModel rocketsViewModel,
             MapViewModel mapViewModel)
         {
-            _homeViewModel = homeViewModel ?? throw new ArgumentNullException(nameof(homeViewModel));
             _launchesViewModel = launchesViewModel ?? throw new ArgumentNullException(nameof(launchesViewModel));
             _rocketsViewModel = rocketsViewModel ?? throw new ArgumentNullException(nameof(rocketsViewModel));
             _mapViewModel = mapViewModel ?? throw new ArgumentNullException(nameof(mapViewModel));
+
+            // HomeViewModel recibe lambdas en lugar de MainViewModel directamente.
+            // Esto evita la dependencia circular. (Dependency Inversion Principle)
+            _homeViewModel = new HomeViewModel(
+                navigateToLaunches: NavigateToLaunches,
+                navigateToRockets: NavigateToRockets,
+                navigateToMap: NavigateToMap
+            );
+
+            // Inyectamos la accion "Volver al Home" en cada ViewModel secundario.
+            _launchesViewModel.SetNavigateToHome(NavigateToHome);
+            _rocketsViewModel.SetNavigateToHome(NavigateToHome);
+            _mapViewModel.SetNavigateToHome(NavigateToHome);
 
             CurrentViewModel = _homeViewModel;
         }
@@ -59,8 +59,9 @@ namespace EspaceX_api.ViewModels
         [RelayCommand]
         public void NavigateToMap()
         {
+            // No carga sitios automaticamente.
+            // El usuario debe presionar "Cargar Sitios" manualmente.
             CurrentViewModel = _mapViewModel;
-            _mapViewModel.LoadLaunchSitesCommand.Execute(null);
         }
 
         [RelayCommand]

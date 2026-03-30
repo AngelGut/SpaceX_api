@@ -1,4 +1,4 @@
-﻿# 🎯 Documentación de Decisiones, Errores y Soluciones
+﻿# Documentación de Decisiones, Errores y Soluciones
 
 **EspaceX_api - Registro de problemas encontrados, decisiones técnicas y lecciones aprendidas**
 
@@ -180,7 +180,7 @@ No public parameterless constructor found.
   public LaunchesView(LaunchesViewModel vm)
   {
       InitializeComponent();
-      DataContext = vm;  // ❌ Antipatrón
+      DataContext = vm;  // Antipatrón
   }
   ```
 - WPF instancia `UserControl` vía reflexión **sin parámetros** en `DataTemplate`
@@ -272,7 +272,7 @@ Path: $[0].engines.propellant_1
   ```csharp
   public class EnginesDto
   {
-      public PropellantDto Propellant1 { get; set; }  // ❌ Espera objeto
+      public PropellantDto Propellant1 { get; set; }  // Espera objeto
       public PropellantDto Propellant2 { get; set; }
   }
   ```
@@ -283,16 +283,16 @@ Path: $[0].engines.propellant_1
   ```csharp
   public class EnginesDto
   {
-      public string Propellant1 { get; set; }  // ✅ Ahora es string
+      public string Propellant1 { get; set; }  //Ahora es string
       public string Propellant2 { get; set; }
   }
   ```
 - Eliminar clase `PropellantDto` completa (no se usaba)
 - Actualizar mapeo en `SpaceXApiService.MapToRocketModel()`:
   ```csharp
-  // Antes:  Propellant1Name = dto.Engines?.Propellant1?.Name  // ❌ No existe .Name
+  // Antes:  Propellant1Name = dto.Engines?.Propellant1?.Name  // No existe .Name
   // Después:
-  Propellant1Name = dto.Engines?.Propellant1  // ✅ Es string
+  Propellant1Name = dto.Engines?.Propellant1  // Es string
   ```
 
 **Proceso de Diagnóstico:**
@@ -325,14 +325,14 @@ Path: $[3].engines.engine_loss_max
 - SpaceX API devuelve `engine_loss_max` como `null` para cohetes sin límite (ej: Falcon 1)
 - DTO lo definía como **`int`** (no nullable)
   ```csharp
-  public int EngineLossMax { get; set; }  // ❌ int no puede ser null
+  public int EngineLossMax { get; set; }  // int no puede ser null
   ```
 - `System.Text.Json` lanzaba excepción al asignar `null` a `int`
 
 **Solución:**
 - Cambiar `EngineLossMax` de `int` a **`int?`** (nullable)
   ```csharp
-  public int? EngineLossMax { get; set; }  // ✅ Permite null
+  public int? EngineLossMax { get; set; }  // Permite null
   ```
 - Permite deserializar tanto enteros como `null`
 
@@ -583,7 +583,7 @@ public string Status
 public void NavigateToMap()
 {
     CurrentViewModel = _mapViewModel;
-    _mapViewModel.LoadLaunchSitesCommand.Execute(null);  // ❌ Automático
+    _mapViewModel.LoadLaunchSitesCommand.Execute(null);  // Automático
 }
 ```
 
@@ -621,11 +621,11 @@ public void NavigateToMap()
 
 | Opción | Ventajas | Desventajas | Decisión |
 |--------|----------|-------------|----------|
-| **SVG / Polígonos WPF** | Funciona offline. Sin NuGet extra. Integra con Canvas. Código defendible en defensa. | Mapa simplificado no fotorrealista | **✅ ELEGIDA** - óptima para proyecto académico |
-| **WebBrowser + OpenStreetMap** | Mapa real con tiles. Visualmente superior | IE11 (deprecado). Requiere internet. Comunicación WPF-JS compleja | ❌ Descartada - IE11 incompatible |
-| **WebView2 + Leaflet** | Mapa real, Chromium moderno. Sin API Key | NuGet WebView2. Requiere internet. Complejidad comunicación | ❌ Descartada - complejidad excesiva |
-| **WebView2 + Google Maps** | Mapa profesional | API Key con tarjeta crédito. Costo potencial. Complejidad | ❌ Descartada - requiere pago |
-| **PNG estática** | Implementación rápida (30 min) | Pixelada con zoom. Puntos desalineados | ❌ Descartada - calidad insuficiente |
+| **SVG / Polígonos WPF** | Funciona offline. Sin NuGet extra. Integra con Canvas. Código defendible en defensa. | Mapa simplificado no fotorrealista | ** ELEGIDA** - óptima para proyecto académico |
+| **WebBrowser + OpenStreetMap** | Mapa real con tiles. Visualmente superior | IE11 (deprecado). Requiere internet. Comunicación WPF-JS compleja | Descartada - IE11 incompatible |
+| **WebView2 + Leaflet** | Mapa real, Chromium moderno. Sin API Key | NuGet WebView2. Requiere internet. Complejidad comunicación | Descartada - complejidad excesiva |
+| **WebView2 + Google Maps** | Mapa profesional | API Key con tarjeta crédito. Costo potencial. Complejidad | Descartada - requiere pago |
+| **PNG estática** | Implementación rápida (30 min) | Pixelada con zoom. Puntos desalineados | Descartada - calidad insuficiente |
 
 **Razonamiento Final:**
 - Proyecto académico sin requerimientos de precisión fotográfica
@@ -745,7 +745,7 @@ _launchesViewModel.SetNavigateToHome(NavigateToHome);
 
 ## 7. Lecciones Aprendidas y Recomendaciones
 
-### ✅ Lo que Funcionó Bien
+### Lo que Funcionó Bien
 
 1. **Arquitectura MVVM desde el inicio**
    - Separación clara View/ViewModel/Model
@@ -764,14 +764,14 @@ _launchesViewModel.SetNavigateToHome(NavigateToHome);
    - Usuarios no notaban latencias
    - API no sobrecargada
 
-### 🎯 Mejores Prácticas Aplicadas
+### Mejores Prácticas Aplicadas
 
-✅ Testear DTOs con datos REALES de API (no mocks)  
-✅ Activar CLR Exceptions para diagnosticar JSON  
-✅ Documentar ciclos de dependencia y soluciones  
-✅ Usar Post-Construction Injection cuando Constructor causa ciclo  
-✅ Code-behind solo para presentación pura  
-✅ Nombres sin tildes en enumeraciones/strings de comparación  
+Testear DTOs con datos REALES de API (no mocks)  
+Activar CLR Exceptions para diagnosticar JSON  
+Documentar ciclos de dependencia y soluciones  
+Usar Post-Construction Injection cuando Constructor causa ciclo  
+Code-behind solo para presentación pura  
+Nombres sin tildes en enumeraciones/strings de comparación  
 
 ---
 
@@ -787,7 +787,7 @@ _launchesViewModel.SetNavigateToHome(NavigateToHome);
 | UI / Renderizado | 6 | 2 |
 | Lógica de Negocio | 2 | 1 |
 
-**Estado Final:** ✅ **Proyecto Compilado sin Errores**
+**Estado Final:**  **Proyecto Compilado sin Errores**
 
 Todas las decisiones técnicas documentadas para referencia futura y defensa académica.
 

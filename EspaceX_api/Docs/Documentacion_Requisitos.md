@@ -1,4 +1,4 @@
-﻿# 📋 Documentación de Requisitos
+﻿# Documentación de Requisitos
 
 **EspaceX_api - Aplicación de Escritorio WPF**
 
@@ -267,15 +267,15 @@ Postcondición: Caché actualizado, datos nuevos visible
 
 ### La aplicación se considera "terminada" cuando:
 
-✅ Compila sin errores (Error List vacía)  
-✅ Todas las tres vistas cargan datos sin excepciones  
-✅ Filtros funcionan correctamente  
-✅ Navegación funciona sin dependencias circulares  
-✅ Caché expira correctamente después de 1 hora  
-✅ Mapa dibuja continentes y permite zoom/pan  
-✅ Errores de API se muestran al usuario sin crashes  
-✅ Code-behind mínimo, lógica en ViewModels  
-✅ MVVM correctamente aplicado  
+Compila sin errores (Error List vacía)  
+Todas las tres vistas cargan datos sin excepciones  
+Filtros funcionan correctamente  
+Navegación funciona sin dependencias circulares  
+Caché expira correctamente después de 1 hora  
+Mapa dibuja continentes y permite zoom/pan  
+Errores de API se muestran al usuario sin crashes  
+Code-behind mínimo, lógica en ViewModels  
+MVVM correctamente aplicado  
 
 ---
 
@@ -283,12 +283,12 @@ Postcondición: Caché actualizado, datos nuevos visible
 
 | Requisito | Archivo | Estado |
 |-----------|---------|--------|
-| RF1 - Home | HomeView.xaml / HomeViewModel.cs | ✅ Completo |
-| RF2 - Lanzamientos | LaunchesView.xaml / LaunchesViewModel.cs | ✅ Completo |
-| RF3 - Cohetes | RocketsView.xaml / RocketsViewModel.cs | ✅ Completo |
-| RF4 - Mapa | MapView.xaml / MapViewModel.cs | ✅ Completo |
-| RF5 - Caché | SpaceXApiService.cs | ✅ Completo |
-| RF6 - Errores | Views (StringToVisibilityConverter) | ✅ Completo |
-| RF7 - Navegación | MainViewModel.cs / MainWindow.xaml | ✅ Completo |
+| RF1 - Home | HomeView.xaml / HomeViewModel.cs | Completo |
+| RF2 - Lanzamientos | LaunchesView.xaml / LaunchesViewModel.cs | Completo |
+| RF3 - Cohetes | RocketsView.xaml / RocketsViewModel.cs | Completo |
+| RF4 - Mapa | MapView.xaml / MapViewModel.cs | Completo |
+| RF5 - Caché | SpaceXApiService.cs | Completo |
+| RF6 - Errores | Views (StringToVisibilityConverter) | Completo |
+| RF7 - Navegación | MainViewModel.cs / MainWindow.xaml | Completo |
 
 ---

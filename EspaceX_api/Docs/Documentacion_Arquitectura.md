@@ -1,4 +1,4 @@
-# 🏗️ Arquitectura de EspaceX_api
+# Arquitectura de EspaceX_api
 
 **Documentación de Arquitectura y Principios SOLID**
 

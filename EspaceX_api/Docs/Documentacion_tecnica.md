@@ -1,4 +1,4 @@
-﻿# 🔧 Documentación Técnica
+﻿# Documentación Técnica
 
 **EspaceX_api - Arquitectura, Stack y Componentes**
 

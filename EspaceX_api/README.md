@@ -9,7 +9,7 @@ Desarrollada con **.NET 8**, **MVVM Toolkit**, **Inyección de Dependencias**, *
 SpaceX Explorer es una aplicación que trae datos en tiempo real de SpaceX y los muestra de forma visual:
 
 - Lanzamientos: Historial completo con búsqueda y filtros por estado
-- Cohetes**: Especificaciones técnicas (altura, masa, costo, tasa de éxito)
+- Cohetes: Especificaciones técnicas (altura, masa, costo, tasa de éxito)
 - Mapa: Sitios de lanzamiento interactivos con zoom y pan
 - Menú: Navegación intuitiva entre secciones
 

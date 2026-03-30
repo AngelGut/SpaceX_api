@@ -1,4 +1,4 @@
-﻿# 📖 Documentación de API
+﻿# Documentación de API
 
 **EspaceX_api - Referencia de Servicios, ViewModels y Modelos**
 

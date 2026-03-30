@@ -49,8 +49,8 @@ Este documento cubre:
 
 Este documento **no** cubre:
 
-- Manual operativo para el usuario final (véase `MANUAL_USUARIO.docx`)
-- Referencia detallada de integración con la API (véase `API_REFERENCE.md`)
+- Manual operativo para el usuario final
+- Referencia detallada de integración con la API
 - Procedimientos de despliegue en entornos distintos al local
 
 ---

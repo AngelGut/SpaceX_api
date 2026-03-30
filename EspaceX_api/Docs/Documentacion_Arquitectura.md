@@ -4,7 +4,7 @@
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 | Sección | Propósito | Audiencia |
 |---------|-----------|-----------|
@@ -233,12 +233,12 @@ EspaceX_api/
 
 EspaceX_api implementa:
 
-✅ **Arquitectura en capas** bien definida  
-✅ **Principios SOLID** en cada componente  
-✅ **MVVM + MVVM Toolkit** para UI reactiva  
-✅ **Inyección de Dependencias** para desacoplamiento  
-✅ **Caché inteligente** de datos  
-✅ **Interfaces claras** para extensión  
+**Arquitectura en capas** bien definida  
+**Principios SOLID** en cada componente  
+**MVVM + MVVM Toolkit** para UI reactiva  
+**Inyección de Dependencias** para desacoplamiento  
+**Caché inteligente** de datos  
+**Interfaces claras** para extensión  
 
 **Resultado:**
 - Código testeable y mantenible

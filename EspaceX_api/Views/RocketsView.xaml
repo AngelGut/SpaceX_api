@@ -1,18 +1,17 @@
 <UserControl x:Class="EspaceX_api.Views.RocketsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Background="#0a0e1a">
+             Background="#000000">
     <Grid>
         <DockPanel>
 
-            <!-- HEADER: titulo y estado del sistema -->
-            <Border DockPanel.Dock="Top" Height="68">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#0f2744" Offset="0"/>
-                        <GradientStop Color="#1a0a2e" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
+            <!-- HEADER: titulo tipo "MISSION CONTROL" -->
+            <Border DockPanel.Dock="Top"
+                    Background="#050505"
+                    Height="60"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#1A1A1A"
+                    Padding="24,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -20,187 +19,179 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Titulo izquierdo -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal"
-                                VerticalAlignment="Center" Margin="18,0,0,0">
-                        <TextBlock Text="&gt;&gt;" FontSize="20" VerticalAlignment="Center"
-                                   Foreground="#e8490f" Margin="0,0,12,0"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Rectangle Width="3" Fill="#FFFFFF" Margin="0,0,16,0" VerticalAlignment="Stretch" Height="28"/>
                         <StackPanel>
                             <TextBlock Text="SPACEX MISSION CONTROL"
-                                       FontFamily="Courier New" FontSize="10" Foreground="#7bafd4"/>
+                                       FontFamily="Segoe UI"
+                                       FontSize="9"
+                                       Foreground="#444444"
+                                       FontWeight="SemiBold"/>
                             <TextBlock Text="ROCKET FLEET"
-                                       FontFamily="Courier New" FontSize="18" Foreground="White"
-                                       FontWeight="Bold"/>
+                                       FontFamily="Segoe UI Black"
+                                       FontSize="16"
+                                       Foreground="#FFFFFF"
+                                       FontWeight="Black"/>
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Indicador de estado derecho -->
-                    <Border Grid.Column="2" Margin="0,0,18,0" VerticalAlignment="Center"
-                            Background="#0d2a1a" BorderBrush="#1a6640"
-                            BorderThickness="1" CornerRadius="4" Padding="12,6">
+                    <!-- Indicador NOMINAL -->
+                    <Border Grid.Column="2"
+                            Background="#050F05"
+                            BorderBrush="#1A3A1A"
+                            BorderThickness="1"
+                            CornerRadius="2"
+                            Padding="14,6"
+                            VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="8" Height="8" Fill="#2ecc71"
-                                     VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <Ellipse Width="6" Height="6"
+                                     Fill="#4CAF50"
+                                     VerticalAlignment="Center"
+                                     Margin="0,0,8,0"/>
                             <TextBlock Text="SYSTEMS NOMINAL"
-                                       FontFamily="Courier New" FontSize="11" Foreground="#2ecc71"/>
+                                       FontFamily="Segoe UI"
+                                       FontSize="10"
+                                       Foreground="#4CAF50"/>
                         </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
-            <!-- Linea decorativa naranja debajo del header -->
-            <Rectangle DockPanel.Dock="Top" Height="2">
-                <Rectangle.Fill>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#e8490f" Offset="0"/>
-                        <GradientStop Color="#ff9d4a" Offset="0.5"/>
-                        <GradientStop Color="#e8490f" Offset="1"/>
-                    </LinearGradientBrush>
-                </Rectangle.Fill>
-            </Rectangle>
-
-            <!-- TOOLBAR: boton volver + cargar + actualizar -->
-            <Border DockPanel.Dock="Top" Background="#0d1520"
-                    Padding="18,10" BorderThickness="0,0,0,1" BorderBrush="#1e3a5c">
+            <!-- TOOLBAR -->
+            <Border DockPanel.Dock="Top"
+                    Background="#000000"
+                    Padding="20,10"
+                    BorderThickness="0,0,0,1"
+                    BorderBrush="#111111">
                 <StackPanel Orientation="Horizontal">
 
-                    <!-- Boton Volver al Home - ejecuta GoHomeCommand en RocketsViewModel -->
-                    <Button Command="{Binding GoHomeCommand}"
-                            Padding="12,8" Margin="0,0,16,0" Cursor="Hand">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bg" CornerRadius="4" Background="Transparent"
-                                        BorderBrush="#2a4a6a" BorderThickness="1"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bg" Property="Background" Value="#0d1e30"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <TextBlock Text="&lt;- VOLVER" Foreground="#7bafd4"
-                                   FontFamily="Courier New" FontSize="11" FontWeight="Bold"/>
-                    </Button>
+                    <!-- Volver -->
+                    <Border Background="Transparent"
+                            BorderBrush="#222222"
+                            BorderThickness="1"
+                            CornerRadius="2"
+                            Padding="14,7"
+                            Margin="0,0,16,0"
+                            Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding GoHomeCommand}"/>
+                        </Border.InputBindings>
+                        <TextBlock Text="&#x2190; VOLVER"
+                                   FontFamily="Segoe UI"
+                                   FontSize="11"
+                                   Foreground="#555555"/>
+                    </Border>
 
-                    <!-- Separador vertical -->
-                    <Rectangle Width="1" Fill="#2a4a6a" Margin="0,0,16,0"/>
+                    <Rectangle Width="1" Fill="#1A1A1A" Margin="0,0,16,0"/>
 
-                    <!-- Boton Cargar con degradado naranja -->
-                    <Button Command="{Binding LoadRocketsCommand}"
-                            Padding="16,8" Margin="0,0,10,0" Cursor="Hand">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bg" CornerRadius="4"
-                                        Padding="{TemplateBinding Padding}">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#e8490f" Offset="0"/>
-                                            <GradientStop Color="#ff6a2f" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bg" Property="Opacity" Value="0.85"/>
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="bg" Property="Opacity" Value="0.7"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <TextBlock Text="CARGAR" Foreground="White"
-                                   FontFamily="Courier New" FontSize="12" FontWeight="Bold"/>
-                    </Button>
+                    <!-- Cargar -->
+                    <Border Background="#FFFFFF"
+                            CornerRadius="2"
+                            Padding="18,8"
+                            Margin="0,0,8,0"
+                            Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding LoadRocketsCommand}"/>
+                        </Border.InputBindings>
+                        <TextBlock Text="CARGAR"
+                                   FontFamily="Segoe UI Semibold"
+                                   FontSize="11"
+                                   Foreground="#000000"/>
+                    </Border>
 
-                    <!-- Boton Actualizar con borde naranja -->
-                    <Button Command="{Binding RefreshCommand}"
-                            Padding="16,8" Margin="0,0,16,0" Cursor="Hand">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bg" CornerRadius="4" Background="Transparent"
-                                        BorderBrush="#e8490f" BorderThickness="1.5"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bg" Property="Background" Value="#1a1000"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <TextBlock Text="ACTUALIZAR" Foreground="#e8490f"
-                                   FontFamily="Courier New" FontSize="12" FontWeight="Bold"/>
-                    </Button>
+                    <!-- Actualizar -->
+                    <Border Background="Transparent"
+                            BorderBrush="#333333"
+                            BorderThickness="1"
+                            CornerRadius="2"
+                            Padding="18,8"
+                            Margin="0,0,16,0"
+                            Cursor="Hand">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding RefreshCommand}"/>
+                        </Border.InputBindings>
+                        <TextBlock Text="ACTUALIZAR"
+                                   FontFamily="Segoe UI"
+                                   FontSize="11"
+                                   Foreground="#666666"/>
+                    </Border>
 
-                    <!-- Separador + etiqueta decorativa -->
-                    <Rectangle Width="1" Fill="#2a4a6a" Margin="0,0,16,0"/>
-                    <Border CornerRadius="14" Background="#0f2030" BorderBrush="#1e3a5c"
-                            BorderThickness="1" Padding="14,5" VerticalAlignment="Center">
-                        <TextBlock FontFamily="Courier New" FontSize="11"
-                                   Foreground="#7bafd4" Text="COHETES SPACEX"/>
+                    <Rectangle Width="1" Fill="#1A1A1A" Margin="0,0,16,0"/>
+
+                    <Border Background="#0A0A0A"
+                            BorderBrush="#1A1A1A"
+                            BorderThickness="1"
+                            CornerRadius="2"
+                            Padding="14,6"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="FLOTA SPACEX"
+                                   FontFamily="Segoe UI"
+                                   FontSize="10"
+                                   Foreground="#333333"/>
                     </Border>
 
                 </StackPanel>
             </Border>
 
-            <!-- ERROR: visible solo cuando ErrorMessage tiene contenido -->
-            <Border DockPanel.Dock="Bottom" Background="#2a0d0d"
-                    BorderBrush="#6a1a1a" BorderThickness="0,1,0,0" Padding="18,12"
-                    Visibility="{Binding ErrorMessage,
-                                 Converter={StaticResource StringToVisibilityConverter}}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="! " Foreground="#e74c3c"
-                               FontFamily="Courier New" FontSize="13"/>
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#e74c3c"
-                               TextWrapping="Wrap" FontFamily="Courier New" FontSize="12"/>
-                </StackPanel>
+            <!-- ERROR -->
+            <Border DockPanel.Dock="Bottom"
+                    Background="#1A0000"
+                    BorderBrush="#3A0000"
+                    BorderThickness="0,1,0,0"
+                    Padding="20,10"
+                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#FF4444"
+                           FontFamily="Segoe UI"
+                           FontSize="11"
+                           TextWrapping="Wrap"/>
             </Border>
 
-            <!-- DATAGRID: tabla principal de cohetes -->
+            <!-- TABLA COHETES -->
             <DataGrid ItemsSource="{Binding Rockets}"
                       SelectedItem="{Binding SelectedRocket}"
                       AutoGenerateColumns="False"
-                      Background="#080d14" Foreground="#c8dff0"
+                      Background="#000000"
+                      Foreground="#CCCCCC"
                       GridLinesVisibility="Horizontal"
-                      HorizontalGridLinesBrush="#111e2e"
-                      RowHeaderWidth="0" CanUserAddRows="False"
-                      IsReadOnly="True" SelectionMode="Single"
-                      BorderThickness="0" ColumnHeaderHeight="36"
-                      FontFamily="Courier New" FontSize="12" RowHeight="48">
+                      HorizontalGridLinesBrush="#0D0D0D"
+                      RowHeaderWidth="0"
+                      CanUserAddRows="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      BorderThickness="0"
+                      ColumnHeaderHeight="38"
+                      FontFamily="Segoe UI"
+                      FontSize="12"
+                      RowHeight="52">
 
                 <DataGrid.ColumnHeaderStyle>
                     <Style TargetType="DataGridColumnHeader">
-                        <Setter Property="Background" Value="#0f1e30"/>
-                        <Setter Property="Foreground" Value="#7bafd4"/>
-                        <Setter Property="FontFamily" Value="Courier New"/>
+                        <Setter Property="Background" Value="#060606"/>
+                        <Setter Property="Foreground" Value="#444444"/>
+                        <Setter Property="FontFamily" Value="Segoe UI"/>
                         <Setter Property="FontSize" Value="10"/>
-                        <Setter Property="FontWeight" Value="Bold"/>
-                        <Setter Property="Padding" Value="12,0"/>
-                        <Setter Property="BorderBrush" Value="#1e3a5c"/>
-                        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Padding" Value="16,0"/>
+                        <Setter Property="BorderBrush" Value="#111111"/>
+                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
                     </Style>
                 </DataGrid.ColumnHeaderStyle>
 
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
-                        <Setter Property="Background" Value="#080d14"/>
-                        <Setter Property="BorderBrush" Value="#111e2e"/>
+                        <Setter Property="Background" Value="#000000"/>
+                        <Setter Property="BorderBrush" Value="#0D0D0D"/>
                         <Setter Property="BorderThickness" Value="0,0,0,1"/>
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#0d2440"/>
+                                <Setter Property="Background" Value="#0D0D0D"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#0d1e30"/>
+                                <Setter Property="Background" Value="#080808"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -208,38 +199,67 @@
 
                 <DataGrid.CellStyle>
                     <Style TargetType="DataGridCell">
-                        <Setter Property="Foreground" Value="#c8dff0"/>
+                        <Setter Property="Foreground" Value="#AAAAAA"/>
                         <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="12,0"/>
-                        <Setter Property="FontFamily" Value="Courier New"/>
+                        <Setter Property="Padding" Value="16,0"/>
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="Foreground" Value="#ffffff"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
                 </DataGrid.CellStyle>
 
-                <!-- Columnas de datos del cohete -->
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="NOMBRE"
-                                        Binding="{Binding Name}" Width="160"/>
+                                        Binding="{Binding Name}"
+                                        Width="160"/>
                     <DataGridTextColumn Header="TIPO"
-                                        Binding="{Binding Type}" Width="110"/>
-                    <DataGridTextColumn Header="ESTADO"
-                                        Binding="{Binding Status}" Width="90"/>
+                                        Binding="{Binding Type}"
+                                        Width="110"/>
+
+                    <!-- Estado con badge -->
+                    <DataGridTemplateColumn Header="ESTADO" Width="100">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock VerticalAlignment="Center" Margin="16,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="{Binding Status}"/>
+                                            <Setter Property="FontFamily" Value="Segoe UI"/>
+                                            <Setter Property="FontSize" Value="11"/>
+                                            <Setter Property="Foreground" Value="#555555"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="Activo">
+                                                    <Setter Property="Foreground" Value="#4CAF50"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="Inactivo">
+                                                    <Setter Property="Foreground" Value="#FF4444"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
                     <DataGridTextColumn Header="1ER VUELO"
-                                        Binding="{Binding FirstFlight}" Width="110"/>
+                                        Binding="{Binding FirstFlight}"
+                                        Width="110"/>
                     <DataGridTextColumn Header="ALTURA"
-                                        Binding="{Binding HeightFormatted}" Width="130"/>
+                                        Binding="{Binding HeightFormatted}"
+                                        Width="130"/>
                     <DataGridTextColumn Header="MASA"
-                                        Binding="{Binding MassFormatted}" Width="120"/>
+                                        Binding="{Binding MassFormatted}"
+                                        Width="120"/>
                     <DataGridTextColumn Header="TASA EXITO"
                                         Binding="{Binding SuccessRatePct, StringFormat='{}{0:F1}%'}"
-                                        Width="100"/>
+                                        Width="110"/>
                     <DataGridTextColumn Header="COSTO"
-                                        Binding="{Binding CostFormatted}" Width="*"/>
+                                        Binding="{Binding CostFormatted}"
+                                        Width="*"/>
                 </DataGrid.Columns>
 
             </DataGrid>
